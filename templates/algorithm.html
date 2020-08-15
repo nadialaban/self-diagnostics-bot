@@ -58,14 +58,16 @@
     methods: {
       change: function(next_state_info, answer, question){
         this.last_ids.push(this.current_state.id);
-        info = next_state_info.split(' ');
-        id = parseInt(info[1]);
         this.symptoms.push('<strong>Вопрос:</strong> ' + question +
                            '\n<strong>Ответ:</strong> ' + answer);
-        if (info[0] == 'q'){
+        if (next_state_info[0] == 'q'){
+          info = next_state_info.split('-');
+          id = parseInt(info[1]);
           this.current_state = this.algorithm_data.questions.find(q => q.id == id);
         }
-        else if (info[0] == 'r'){
+        else if (next_state_info[0] == 'r'){
+          info = next_state_info.split('-');
+          id = parseInt(info[1]);
           this.current_state = this.algorithm_data.results.find(r => r.id == id);
           switch (this.current_state.color) {
             case 'grey':
@@ -86,7 +88,7 @@
           this.symptoms_string = this.symptoms.join('\n\n');
           this.testing = false;
         }
-        else if (info[0] == 'сценарию'){
+        else if (next_state_info[0] == 'сценарию'){
           this.current_state = {
             'title': '',
             'description': 'Пожалуйста, перейдите к ' + next_state_info,
