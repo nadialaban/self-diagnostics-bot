@@ -62,22 +62,22 @@
         id = parseInt(info[1]);
         this.symptoms.push('<strong>Вопрос:</strong> ' + question +
                            '\n<strong>Ответ:</strong> ' + answer);
-        if (info[0] == 'вопросу'){
+        if (info[0] == 'q'){
           this.current_state = this.algorithm_data.questions.find(q => q.id == id);
         }
-        else if (info[0] == 'исходу'){
+        else if (info[0] == 'r'){
           this.current_state = this.algorithm_data.results.find(r => r.id == id);
           switch (this.current_state.color) {
-            case 'Серый':
+            case 'grey':
               this.current_state.color = 'alert-secondary';
               break;
-            case 'Зеленый':
+            case 'green':
               this.current_state.color = 'alert-success';
               break;
-            case 'Желтый':
+            case 'yellow':
               this.current_state.color = 'alert-warning';
               break;
-            case 'Красный':
+            case 'red':
               this.current_state.color = 'alert-danger';
               break;
             default:

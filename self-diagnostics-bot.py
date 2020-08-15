@@ -276,7 +276,6 @@ def action_test(algorithm_id):
         'current_state': next(st for st in algorithm['questions'] if st['id'] == 1),
         'contract_id': contract_id
     }
-
     return render_template('algorithm.html', page_data=page_data)
 
 
