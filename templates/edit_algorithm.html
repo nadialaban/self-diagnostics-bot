@@ -142,10 +142,10 @@
                                     <h6>Цвет</h6>
                                     <select v-model="result.color" :name="'r-' + result.id + '-color'" class="custom-select" id="validationTooltip04" required>
                                        <option selected disabled value="">Выберите цвет...</option>
-                                       <option >Серый</option>
-                                       <option >Зеленый</option>
-                                       <option >Желтый</option>
-                                       <option >Красный</option>
+                                       <option value="grey">Серый</option>
+                                       <option value="green">Зеленый</option>
+                                       <option value="yellow">Желтый</option>
+                                       <option value="red">Красный</option>
                                     </select>
                                     <div class="invalid-feedback">* Обязательное поле</div>
                                  </div>
@@ -321,13 +321,13 @@
            },
            getButtonColor: function(color){
              switch (color) {
-               case 'Серый':
+               case 'grey':
                 return 'btn-secondary';
-               case 'Зеленый':
+               case 'green':
                 return 'btn-success';
-               case 'Желтый':
+               case 'yellow':
                 return 'btn-warning';
-               case 'Красный':
+               case 'red':
                 return 'btn-danger';
              }
            }
