@@ -428,7 +428,7 @@ def action_save(algorithm_id):
 # 3. Вспомогательльные методы
 # 3.1. Отправка сообщения с результом в канал
 def send_result(contract_id, result, symptoms):
-    patient_text = 'Вами был пройден сценарий самодиагностики "{}".\n\n<strong>Результат:</strong>\n{}.\n\n{}'.format(result.algorithm.title, result.title, result.description)
+    patient_text = 'Вами был пройден сценарий самодиагностики <strong>"{}"</strong>.\n\n<strong>Результат:</strong>\n{}.\n\n{}'.format(result.algorithm.title, result.title, result.description)
 
     doctor_data = {}
     if result.need_warn:
