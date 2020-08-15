@@ -413,7 +413,7 @@ def action_save(algorithm_id):
                      algorithm_id=algorithm.id,
                      title=request.form.get('r-{}-title'.format(i), ''),
                      description=request.form.get('r-{}-description'.format(i), ''),
-                     color=colors[request.form.get('r-{}-color'.format(i), '')],
+                     color=request.form.get('r-{}-color'.format(i), ''),
                      need_warn=request.form.get('r-{}-nw'.format(i), '') != '',
                      need_response=request.form.get('r-{}-nr'.format(i), '') != '',
                      message=request.form.get('r-{}-message'.format(i), ''))
@@ -520,7 +520,7 @@ def algorithm_to_dict(algorithm_id):
             'id': algorithm.results[i].result_id,
             'title': algorithm.results[i].title,
             'description': algorithm.results[i].description,
-            'color': colors[algorithm.results[i].color],
+            'color': algorithm.results[i].color,
             'need_warn': algorithm.results[i].need_warn,
             'need_response': algorithm.results[i].need_response,
             'message': algorithm.results[i].message,
