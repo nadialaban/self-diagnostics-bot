@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <title>Самодиагностика</title>
+      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+      <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+         integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+      <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+         integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+         integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+   </head>
+   <body>
+      <div class="container" style="margin-top: 15px;" id="app">
+         <h4 class="text-center">Самодиагностика</h4>
+         <div class="container" style="margin-top: 15px;">
+            <label>Выберите проблему, которая Вас беспокоит</label>
+         </div>
+         <!-- Алгоритм -->
+
+         {% for algorithm in page_data['algorithms'] %}
+         <div class="container" style="margin-top: 10px;">
+               <button class="btn btn-outline-info btn-block text-left" type="button" data-toggle="collapse"
+                  data-target="#collapse{{algorithm.id}}" aria-expanded="false" aria-controls="collapse{{algorithm.id}}">
+               {{ algorithm.title }}
+               </button>
+            <div class="collapse" id="collapse{{algorithm.id}}">
+               <div class="card card-body text-justify">
+                  {{ algorithm.description }}
+                  <a href="/api/client/agents/15/?action=action_test/{{algorithm.id}}&contract_id={{ page_data['contract_id'] }}"
+                     class="btn btn-block btn-info" style="margin-top: 15px; width: 200px;">Начать</a>
+               </div>
+            </div>
+         </div>
+         {% endfor %}
+      </div>
+   </body>
+</html>
