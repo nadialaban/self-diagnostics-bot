@@ -75,7 +75,7 @@ def get_agent_token(contract_id):
 
     try:
         answer = requests.post(MAIN_HOST + '/api/agents/token', json=data).json()
-        return answer.agent_token
+        return answer['agent_token']
     except Exception as e:
         print('connection error', e)
 
