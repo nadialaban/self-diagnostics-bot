@@ -66,6 +66,20 @@ def get_state(state_type, algorithm_id, state_id):
     return 'unexpected type'
 
 
+# 1.4. Получение временного токена для ответного запроса.
+def get_agent_token(contract_id):
+    data = {
+        "contract_id": contract_id,
+        "api_key": APP_KEY,
+    }
+
+    try:
+        answer = requests.post(MAIN_HOST + '/api/agents/token', json=data).json()
+        return answer.agent_token
+    except Exception as e:
+        print('connection error', e)
+
+
 # 2. Описание работы интеллектуального агента
 # 2.1. Проверка подключения
 @app.route('/', methods=['GET'])
@@ -88,7 +102,7 @@ def init():
             contract_id: {
                 'algorithms': [],
                 'clinic_id': str(data['clinic_id'])
-                         }})
+            }})
         save()
 
     return 'ok'
@@ -134,6 +148,7 @@ def settings():
     key = request.args.get('api_key', APP_KEY)
     contract = request.args.get('contract_id', '')
     clinic_id = str(contracts[contract]['clinic_id'])
+    agent_token = get_agent_token(contract)
 
     if key != APP_KEY:
         return "<strong>Некорректный ключ доступа.</strong> Свяжитесь с технической поддержкой."
@@ -143,6 +158,7 @@ def settings():
     algorithms = Algorithm.query.filter_by(creator='').all()
     algorithms.extend(Algorithm.query.filter_by(creator=clinic_id).all())
 
+
     info = []
     for algorithm in algorithms:
         info.append({
@@ -151,14 +167,14 @@ def settings():
             'description': algorithm.description,
             'can_edit': algorithm.creator == clinic_id,
         })
-        
+
     page_data = {
         'algorithms': info,
         'allowed_algorithms': contracts[contract]['algorithms'],
         'contract_id': contract
     }
-    
-    return render_template('settings.html', page_data=page_data)
+
+    return render_template('settings.html', page_data=page_data, agent_id=AGENT_ID, agent_token=agent_token)
 
 
 # 2.2.4.2. Сохранение настроек.
@@ -191,13 +207,14 @@ def save_settings():
 @app.route('/message', methods=['POST'])
 def check_message():
     data = request.json
-    
+
     if data['api_key'] != APP_KEY:
         return "<strong>Некорректный ключ доступа.</strong> Свяжитесь с технической поддержкой."
     if str(data['contract_id']) not in contracts:
         return "<strong>Запрашиваемый канал консультирования не найден.</strong> Попробуйте отключить и заново подключить интеллектуального агента. Если это не сработает, свяжитесь с технической поддержкой."
 
-    algorithms = db.session.query(Algorithm).filter(Algorithm.id.in_(contracts[str(data['contract_id'])]['algorithms'])).all()
+    algorithms = db.session.query(Algorithm).filter(
+        Algorithm.id.in_(contracts[str(data['contract_id'])]['algorithms'])).all()
     detected_algorithms = []
 
     for alg in algorithms:
@@ -211,7 +228,8 @@ def check_message():
             "contract_id": data['contract_id'],
             "api_key": APP_KEY,
             "message": {
-                "text": "Попробуйте пройти один из следующих сценариев самодиагностики, пока ожидаете ответ от врача:\n\n{}".format(str.join('\n', detected_algorithms)),
+                "text": "Попробуйте пройти один из следующих сценариев самодиагностики, пока ожидаете ответ от врача:\n\n{}".format(
+                    str.join('\n', detected_algorithms)),
                 "action_link": "/action_algorithms",
                 "action_name": "Самодиагностика",
                 "only_doctor": False,
@@ -233,6 +251,7 @@ def check_message():
 def action_algorithms():
     key = request.args.get('api_key', '')
     contract_id = str(request.args.get('contract_id', ''))
+    agent_token = get_agent_token(contract_id)
 
     if key != APP_KEY:
         return "<strong>Некорректный ключ доступа.</strong> Свяжитесь с технической поддержкой."
@@ -254,13 +273,14 @@ def action_algorithms():
         'contract_id': contract_id
     }
 
-    return render_template('algorithms.html', page_data=page_data)
+    return render_template('algorithms.html', page_data=page_data, agent_id=AGENT_ID, agent_token=agent_token)
 
 
 # 2.3.2. Тест
 @app.route('/action_test/<int:algorithm_id>', methods=['GET'])
 def action_test(algorithm_id):
     contract_id = str(request.args.get('contract_id', ''))
+    agent_token = get_agent_token(contract_id)
 
     if contract_id not in contracts:
         return "<strong>Запрашиваемый канал консультирования не найден.</strong> Попробуйте отключить и заново подключить интеллектуального агента. Если это не сработает, свяжитесь с технической поддержкой."
@@ -276,7 +296,7 @@ def action_test(algorithm_id):
         'current_state': next(st for st in algorithm['questions'] if st['id'] == 1),
         'contract_id': contract_id
     }
-    return render_template('algorithm.html', page_data=page_data)
+    return render_template('algorithm.html', page_data=page_data, agent_token=agent_token, agent_id=AGENT_ID)
 
 
 # 2.3.3. Завершение сценария
@@ -301,6 +321,7 @@ def action_finish(algorithm_id):
 def action_edit(algorithm_id):
     contract_id = request.args.get('contract_id', '')
     clinic_id = str(contracts[contract_id]['clinic_id'])
+    agent_token = get_agent_token(contract_id)
 
     if contract_id not in contracts:
         return "<strong>Запрашиваемый канал консультирования не найден.</strong> Попробуйте отключить и заново подключить интеллектуального агента. Если это не сработает, свяжитесь с технической поддержкой."
@@ -346,7 +367,7 @@ def action_edit(algorithm_id):
         page_data['algorithm_data'] = algorithm_to_dict(algorithm_id)
         page_data['algorithms'].remove(page_data['algorithm_data']['title'])
 
-    return render_template('edit_algorithm.html', page_data=page_data)
+    return render_template('edit_algorithm.html', page_data=page_data, agent_id=AGENT_ID, agent_token=agent_token)
 
 
 # 2.3.4.1. Сохранение и удаление алгоритма
@@ -361,7 +382,7 @@ def action_save(algorithm_id):
         algorithm = Algorithm.query.filter_by(id=algorithm_id).first()
         db.session.query(Question).filter_by(algorithm_id=algorithm_id).delete()
         db.session.query(Result).filter_by(algorithm_id=algorithm_id).delete()
-        if request.form.get('delete',''):
+        if request.form.get('delete', ''):
             db.session.query(Algorithm).filter_by(id=algorithm_id).delete()
             db.session.commit()
             return "<strong>Спасибо, окно можно закрыть</strong><script>window.parent.postMessage('close-modal-success','*');</script>"
@@ -373,7 +394,7 @@ def action_save(algorithm_id):
     algorithm.title = request.form.get('title', '')
     algorithm.description = request.form.get('description', '')
     keywords = request.form.get('keywords', '').split('\n')
-    algorithm.keywords = [kw.replace('\r','') for kw in keywords]
+    algorithm.keywords = [kw.replace('\r', '') for kw in keywords]
     try:
         algorithm.keywords.remove('')
     except:
@@ -393,9 +414,9 @@ def action_save(algorithm_id):
 
         while request.form.get('q-{}-a-{}'.format(i, j), ''):
             answers.append(request.form.get('q-{}-a-{}'.format(i, j), ''))
-            ns = request.form.get('q-{}-ns-{}'.format(i,j), '')
+            ns = request.form.get('q-{}-ns-{}'.format(i, j), '')
             if ns[0] == 'с':
-                alg = Algorithm.query.filter_by(title=str.join('"',ns.split('"')[1:-1])).first()
+                alg = Algorithm.query.filter_by(title=str.join('"', ns.split('"')[1:-1])).first()
                 alg.is_used = True
                 next_states.append('a-{}'.format(alg.id))
             else:
@@ -427,14 +448,17 @@ def action_save(algorithm_id):
 # 3. Вспомогательльные методы
 # 3.1. Отправка сообщения с результом в канал
 def send_result(contract_id, result, symptoms):
-    patient_text = 'Вами был пройден сценарий самодиагностики <strong>"{}"</strong>.\n\n<strong>Результат:</strong>\n{}.\n\n{}'.format(result.algorithm.title, result.title, result.description)
+    patient_text = 'Вами был пройден сценарий самодиагностики <strong>"{}"</strong>.\n\n<strong>Результат:</strong>\n{}.\n\n{}'.format(
+        result.algorithm.title, result.title, result.description)
 
     doctor_data = {}
     if result.need_warn:
         patient_text += '\n\nМы направили уведомление Вашему лечащему врачу.'
         doctor_text = 'Вашим пациентом был пройден сценарий самодиагностики "{}".\n\n' \
                       '<strong>Результат:</strong>\n{}.\n\n{}\n\n' \
-                      '<strong>Были получены следующие ответы:</strong>\n{}'.format(result.algorithm.title, result.title, result.message, symptoms)
+                      '<strong>Были получены следующие ответы:</strong>\n{}'.format(result.algorithm.title,
+                                                                                    result.title, result.message,
+                                                                                    symptoms)
         if result.need_response:
             patient_text += ' Он свяжется с Вами в ближайшее время.'
 
@@ -511,7 +535,7 @@ def algorithm_to_dict(algorithm_id):
             if info[0] == 'a':
                 title = Algorithm.query.filter_by(id=int(info[1])).first().title
                 question['next_states'][j] = 'сценарию "{}"'.format(title)
-                algorithm_data['algorithms'].append({'title':question['next_states'][j],'id':info[1]})
+                algorithm_data['algorithms'].append({'title': question['next_states'][j], 'id': info[1]})
         algorithm_data['questions'].append(question)
 
     for i in range(len(algorithm.results)):
@@ -537,5 +561,4 @@ def algorithm_to_dict(algorithm_id):
 load()
 
 if __name__ == '__main__':
-
     app.run(debug=False, host=HOST, port=PORT)

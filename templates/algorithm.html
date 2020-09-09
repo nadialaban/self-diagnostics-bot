@@ -28,7 +28,7 @@
       </button>
     </div>
       <div class="btn-group d-flex" style="margin-top: 15px;">
-        <a href="/api/client/agents/15/?action=action_algorithms&contract_id={{ page_data['contract_id'] }}"
+        <a href="/api/client/agents/{{ agent_id }}/?action=action_algorithms&contract_id={{ page_data['contract_id'] }}&agent_token={{ agent_token }}"
            class="btn btn-block btn-outline-info" style="margin-top: 15px;">К началу</a>
            <button class="btn btn-block btn-outline-info" style="margin-top: 15px;" @click="go_back()" v-if="last_ids.length != 0">Предыдущий вопрос</button>
       </div>
@@ -46,7 +46,7 @@
         <input type="submit" class="btn-info btn btn-block" value="Завершить">
         <label style="color: red; margin-top: 10px;" class="text-center">После нажатия на кнопку "Завершить" данные сохранятся в канале консультирования и отправятся врачу.</label>
       </form>
-      <a :href="'/api/client/agents/15/?action=action_test/' + current_state.id + '&contract_id=' + contract_id"
+      <a :href="'/api/client/agents/{{ agent_id }}/?action=action_test/' + current_state.id + '&contract_id=' + contract_id + '&agent_token={{ agent_token }}'"
          class="btn btn-block btn-outline-info" style="margin-top: 15px;" v-if="!current_state.last">Перейти</a>
     </div>
 </div>

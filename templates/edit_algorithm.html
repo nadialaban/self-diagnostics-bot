@@ -204,7 +204,7 @@
          </form>
 
          <!-- Кнопка возвращения -->
-         <a href="/api/client/agents/15/?action=settings&contract_id={{ page_data['contract_id'] }}"
+         <a href="/api/client/agents/{{ agent_id }}/?action=settings&contract_id={{ page_data['contract_id'] }}&agent_token={{ agent_token }}"
             class="btn btn-block btn-outline-info" style="margin-top: 15px;">Вернуться</a>
       </div>
 
