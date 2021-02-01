@@ -277,9 +277,10 @@ def action_algorithms():
 
 
 # 2.3.2. Тест
-@app.route('/action_test/<int:algorithm_id>', methods=['GET'])
-def action_test(algorithm_id):
+@app.route('/action_test/<int:algorithm_id>/<string:history>', methods=['GET'])
+def action_test(algorithm_id, history):
     contract_id = str(request.args.get('contract_id', ''))
+    back = str(request.args.get('back', ''))
     agent_token = get_agent_token(contract_id)
 
     if contract_id not in contracts:
@@ -287,21 +288,40 @@ def action_test(algorithm_id):
 
     algorithm = algorithm_to_dict(algorithm_id)
 
+    last_ids = []
+    last_id = -1
+    symptoms = []
+    current_state = next(st for st in algorithm['questions'] if st['id'] == 1)
+    if history != "_":
+        states = history.strip('_').split('_')
+        for state in states:
+            last_ids.append([int(a) for a in state.split('-')])
+            if last_ids[-1][0] != algorithm_id:
+                last_id = last_ids[-1][0]
+        if back != '':
+            current_state = next(st for st in algorithm['questions'] if st['id'] == last_ids[-1][1])
+            history = history.replace(str.join('-',[str(a) for a in last_ids[-1]])+'_', '')
+            last_ids.remove(last_ids[-1])
+        symptoms = get_symptoms(last_ids)
+
     page_data = {
         'algorithm_data': algorithm,
-        'symptoms': [],
+        'symptoms': symptoms,
         'symptoms_string': '',
-        'last_ids': [],
+        'last_ids': last_ids,
+        'last_test_id': last_id,
+        'first': True,
         'testing': True,
-        'current_state': next(st for st in algorithm['questions'] if st['id'] == 1),
-        'contract_id': contract_id
+        'current_state': current_state,
+        'contract_id': contract_id,
+        'history': history
     }
     return render_template('algorithm.html', page_data=page_data, agent_token=agent_token, agent_id=AGENT_ID)
 
 
 # 2.3.3. Завершение сценария
-@app.route('/action_test/<int:algorithm_id>', methods=['POST'])
-def action_finish(algorithm_id):
+@app.route('/action_test/<int:algorithm_id>/<string:history>', methods=['POST'])
+def action_finish(algorithm_id, history):
     contract_id = request.args.get('contract_id', '')
     result_id = request.form.get('result_id', '')
     symptoms = request.form.get('symptoms', '')
@@ -528,14 +548,9 @@ def algorithm_to_dict(algorithm_id):
             'id': algorithm.questions[i].question_id,
             'text': algorithm.questions[i].text,
             'answers': algorithm.questions[i].answers,
-            'next_states': algorithm.questions[i].next_states
+            'next_states': algorithm.questions[i].next_states,
+            'first': i == 0
         }
-        for j in range(len(question['next_states'])):
-            info = question['next_states'][j].split('-')
-            if info[0] == 'a':
-                title = Algorithm.query.filter_by(id=int(info[1])).first().title
-                question['next_states'][j] = 'сценарию "{}"'.format(title)
-                algorithm_data['algorithms'].append({'title': question['next_states'][j], 'id': info[1]})
         algorithm_data['questions'].append(question)
 
     for i in range(len(algorithm.results)):
@@ -556,6 +571,19 @@ def algorithm_to_dict(algorithm_id):
 
     return algorithm_data
 
+
+# 3.5. Формирование истории ответов
+def get_symptoms(states):
+    symptoms = []
+    if len(states) != 0:
+        current_id = states[0][0]
+        current_alg = Algorithm.query.filter_by(id=current_id).first()
+        for state in states:
+            if state[0] != current_id:
+                current_alg = Algorithm.query.filter_by(id=state[0]).first()
+            q = next(s for s in current_alg.questions if s.question_id == state[1])
+            symptoms.append('<strong>Вопрос:</strong> ' + q.text + '<br><strong>Ответ:</strong> ' + q.answers[state[2]])
+    return symptoms
 
 # 4. Запуск
 load()
