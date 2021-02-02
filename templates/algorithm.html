@@ -26,7 +26,7 @@
       <button type="button" class="btn btn-info btn btn-block" v-if="!current_state.next_states[index].startsWith('a')" @click="change(current_state.next_states[index], answer, current_state.text, index)">
           [[ answer ]]
       </button>
-      <a :href="'api/client/agents/{{ agent_id }}/?action=action_test/0/' + current_state.next_states[index].split('-')[1] + '/' + history + algorithm_data.id + '-' + current_state.id + '-' + index + '_&contract_id=' + contract_id + '&agent_token={{ agent_token }}'"
+      <a :href="'/{{ agent_id }}/?action=action_test/0/' + current_state.next_states[index].split('-')[1] + '/' + history + algorithm_data.id + '-' + current_state.id + '-' + index + '_&contract_id=' + contract_id + '&agent_token={{ agent_token }}'"
          class="btn btn-block btn-info" style="margin-top: 15px;" v-if="current_state.next_states[index].startsWith('a')">[[ answer ]]</a>
     </div>
 
