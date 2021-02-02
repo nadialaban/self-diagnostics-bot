@@ -35,7 +35,7 @@
         <a href="/api/client/agents/{{ agent_id }}/?action=action_algorithms&contract_id={{ page_data['contract_id'] }}&agent_token={{ agent_token }}"
            class="btn btn-block btn-outline-info" style="margin-top: 15px;">К началу</a>
            <button class="btn btn-block btn-outline-info" style="margin-top: 15px;" @click="go_back()" v-if="last_ids.length != 0 && !current_state.first">Предыдущий вопрос</button>
-           <a :href="'/{{ agent_id }}/?action=action_test/' + last_test_id + '/' + history + '&contract_id=' + contract_id + '&agent_token={{ agent_token }}&back=true'"
+           <a :href="'/api/client/agents/{{ agent_id }}/?action=action_test/' + last_test_id + '/' + history + '&contract_id=' + contract_id + '&agent_token={{ agent_token }}&back=true'"
               class="btn btn-block btn-outline-info" style="margin-top: 15px;" v-if="last_ids.length != 0 && current_state.first && last_test_id != -1">Предыдущий вопрос</a>
       </div>
     </div>
