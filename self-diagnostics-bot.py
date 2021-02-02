@@ -280,6 +280,7 @@ def action_algorithms():
 @app.route('/action_test/<int:back>/<int:algorithm_id>/<string:history>', methods=['GET'])
 def action_test(back, algorithm_id, history):
     contract_id = str(request.args.get('contract_id', ''))
+    back = str(request.args.get('back', ''))
     agent_token = get_agent_token(contract_id)
 
     if contract_id not in contracts:
