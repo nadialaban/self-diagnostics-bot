@@ -4,8 +4,17 @@ from config import *
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import SQLAlchemyError
 import requests
+import nltk
+from nltk.corpus import stopwords
+from pymystem3 import Mystem
+from string import punctuation
+from pyaspeller import YandexSpeller
 
 app = Flask(__name__)
+speller = YandexSpeller()
+mystem = Mystem()
+russian_stopwords = stopwords.words("russian")
+
 
 # 1. Оисание работы с базой данных.
 # 1.1. Подключение к бд.
@@ -192,18 +201,15 @@ def status():
 def settings():
     key = request.args.get('api_key', APP_KEY)
     contract_id = request.args.get('contract_id', '')
+    contract = get_contract(contract_id)
     agent_token = get_agent_token(contract_id)
 
-    contract = get_contract(contract_id)
-    clinic_id = contract.clinic_id
-
-    if key != APP_KEY:
-        return "<strong>Некорректный ключ доступа.</strong> Свяжитесь с технической поддержкой."
-    if contract is None:
-        return "<strong>Запрашиваемый канал консультирования не найден.</strong> Попробуйте отключить и заново подключить интеллектуального агента. Если это не сработает, свяжитесь с технической поддержкой."
+    check = check_data(contract, key)
+    if check != 'ok':
+        return check
 
     algorithms = Algorithm.query.filter_by(creator='').all()
-    algorithms.extend(Algorithm.query.filter_by(creator=clinic_id).all())
+    algorithms.extend(Algorithm.query.filter_by(creator=contract.clinic_id).all())
 
     info = []
     for algorithm in algorithms:
@@ -211,7 +217,7 @@ def settings():
             'id': algorithm.id,
             'title': algorithm.title,
             'description': algorithm.description,
-            'can_edit': algorithm.creator == clinic_id,
+            'can_edit': algorithm.creator == contract.clinic_id,
         })
 
     page_data = {
@@ -230,15 +236,13 @@ def save_settings():
     contract_id = request.args.get('contract_id', '')
 
     contract = get_contract(contract_id)
-    clinic_id = contract.clinic_id
 
-    if key != APP_KEY:
-        return "<strong>Некорректный ключ доступа.</strong> Свяжитесь с технической поддержкой."
-    if contract is None:
-        return "<strong>Запрашиваемый канал консультирования не найден.</strong> Попробуйте отключить и заново подключить интеллектуального агента. Если это не сработает, свяжитесь с технической поддержкой."
+    check = check_data(contract, key)
+    if check != 'ok':
+        return check
 
     algorithms = Algorithm.query.filter_by(creator='').all()
-    algorithms.extend(Algorithm.query.filter_by(creator=clinic_id).all())
+    algorithms.extend(Algorithm.query.filter_by(creator=contract.clinic_id).all())
     allowed_algorithms = []
 
     for alg in algorithms:
@@ -254,21 +258,24 @@ def save_settings():
 @app.route('/message', methods=['POST'])
 def check_message():
     data = request.json
+    key = data['api_key']
     contract_id = data['contract_id']
     contract = get_contract(contract_id)
 
-    if data['api_key'] != APP_KEY:
-        return "<strong>Некорректный ключ доступа.</strong> Свяжитесь с технической поддержкой."
-    if contract is None:
-        return "<strong>Запрашиваемый канал консультирования не найден.</strong> Попробуйте отключить и заново подключить интеллектуального агента. Если это не сработает, свяжитесь с технической поддержкой."
+    check = check_data(contract, key)
+    if check != 'ok':
+        return check
 
     algorithms = db.session.query(Algorithm).filter(
         Algorithm.id.in_(contract.algorithms)).all()
     detected_algorithms = []
 
+    corrected_message = speller.spelled(data['message']['text'].lower())
+    preprocessed_message = preprocess_text(corrected_message)
     for alg in algorithms:
         for word in alg.keywords:
-            if word.lower() in data['message']['text'].lower():
+            preprocessed_keyword = preprocess_text(word)
+            if all(item in preprocessed_message for item in preprocessed_keyword):
                 detected_algorithms.append('• {}'.format(alg.title))
                 break
 
@@ -303,10 +310,9 @@ def action_algorithms():
     contract = get_contract(contract_id)
     agent_token = get_agent_token(contract_id)
 
-    if key != APP_KEY:
-        return "<strong>Некорректный ключ доступа.</strong> Свяжитесь с технической поддержкой."
-    if contract is None:
-        return "<strong>Запрашиваемый канал консультирования не найден.</strong> Попробуйте отключить и заново подключить интеллектуального агента. Если это не сработает, свяжитесь с технической поддержкой."
+    check = check_data(contract, key)
+    if check != 'ok':
+        return check
 
     algorithms = db.session.query(Algorithm).filter(Algorithm.id.in_(contract.algorithms)).all()
 
@@ -333,8 +339,9 @@ def action_test(back, algorithm_id, history):
     contract = get_contract(contract_id)
     agent_token = get_agent_token(contract_id)
 
-    if contract is None:
-        return "<strong>Запрашиваемый канал консультирования не найден.</strong> Попробуйте отключить и заново подключить интеллектуального агента. Если это не сработает, свяжитесь с технической поддержкой."
+    check = check_data(contract)
+    if check != 'ok':
+        return check
 
     algorithm = algorithm_to_dict(algorithm_id)
 
@@ -377,8 +384,9 @@ def action_finish(back, algorithm_id, history):
     result_id = request.form.get('result_id', '')
     symptoms = request.form.get('symptoms', '')
 
-    if contract is None:
-        return "<strong>Запрашиваемый канал консультирования не найден.</strong> Попробуйте отключить и заново подключить интеллектуального агента. Если это не сработает, свяжитесь с технической поддержкой."
+    check = check_data(contract)
+    if check != 'ok':
+        return check
 
     result = get_state('r', int(algorithm_id), int(result_id))
     send_result(contract_id, result, symptoms)
@@ -394,8 +402,9 @@ def action_edit(algorithm_id):
     contract = get_contract(contract_id)
     agent_token = get_agent_token(contract_id)
 
-    if contract is None:
-        return "<strong>Запрашиваемый канал консультирования не найден.</strong> Попробуйте отключить и заново подключить интеллектуального агента. Если это не сработает, свяжитесь с технической поддержкой."
+    check = check_data(contract)
+    if check != 'ok':
+        return check
 
     clinic_id = contract.clinic_id
     all_algorithms = Algorithm.query.filter_by(creator='').all()
@@ -448,8 +457,9 @@ def action_save(algorithm_id):
     contract_id = request.args.get('contract_id', '')
     contract = get_contract(contract_id)
 
-    if contract is None:
-        return "<strong>Запрашиваемый канал консультирования не найден.</strong> Попробуйте отключить и заново подключить интеллектуального агента. Если это не сработает, свяжитесь с технической поддержкой."
+    check = check_data(contract)
+    if check != 'ok':
+        return check
 
     if algorithm_id != 0:
         algorithm = Algorithm.query.filter_by(id=algorithm_id).first()
@@ -575,6 +585,15 @@ def load():
         print(e)
 
 
+# 3.3. Проверка токенов.
+def check_data(contract, key=APP_KEY):
+    if key != APP_KEY:
+        return "<strong>Некорректный ключ доступа.</strong> Свяжитесь с технической поддержкой."
+    if contract is None:
+        return "<strong>Запрашиваемый канал консультирования не найден.</strong> Попробуйте отключить и заново подключить интеллектуального агента. Если это не сработает, свяжитесь с технической поддержкой."
+    return 'ok'
+
+
 # 3.4. Формирование словаря из алгоритма
 def algorithm_to_dict(algorithm_id):
     algorithm = Algorithm.query.filter_by(id=algorithm_id).first()
@@ -632,8 +651,24 @@ def get_symptoms(states):
     return symptoms
 
 
+# 3.6. Preprocess function
+def preprocess_text(text):
+    tokens = mystem.lemmatize(text.lower())
+    # Убираю все лишнее
+    tokens = [token for token in tokens if token not in russian_stopwords
+              and token != " " and token.strip() not in punctuation]
+
+    text = " ".join(tokens)
+
+    return tokens
+
+
 # 4. Запуск
 load()
+try:
+    nltk.download("stopwords")
+except:
+    pass
 
 if __name__ == '__main__':
     app.run(debug=False, host=HOST, port=PORT)
