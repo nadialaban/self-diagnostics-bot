@@ -164,7 +164,7 @@ def init():
     if data['api_key'] != APP_KEY:
         return 'invalid key'
 
-    return add_contract(data['contact_id'], data['clinic_id'])
+    return add_contract(data['contract_id'], data['clinic_id'])
 
 
 # 2.2.2. Отключение канала консультирования
