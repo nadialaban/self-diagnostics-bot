@@ -1,7 +1,9 @@
-requests~=2.25.1
-nltk~=3.5
-Flask~=1.1.2
-SQLAlchemy~=1.3.22
-pymystem3~=0.2.0
-pyaspeller~=0.2.0
+requests
+nltk
+Flask
+SQLAlchemy
+pymystem3
+pyaspeller
 flask_sqlalchemy
+psycopg2
+psycopg2-binary

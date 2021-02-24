@@ -303,7 +303,7 @@ def check_message():
 
 # 2.3. Основные методы.
 # 2.3.1. Выбор алгоритма
-@app.route('/action_algorithms', methods=['GET'])
+@app.route('/action_algorithms/', methods=['GET'])
 def action_algorithms():
     key = request.args.get('api_key', '')
     contract_id = request.args.get('contract_id', '')
@@ -583,6 +583,7 @@ def load():
             add_contract(contract, contracts[contract]['clinic_id'], contracts[contract]['algorithms'])
     except Exception as e:
         print(e)
+    nltk.download("stopwords")
 
 
 # 3.3. Проверка токенов.
@@ -664,11 +665,8 @@ def preprocess_text(text):
 
 
 # 4. Запуск
-load()
-try:
-    nltk.download("stopwords")
-except:
-    pass
+
 
 if __name__ == '__main__':
+    load()
     app.run(debug=False, host=HOST, port=PORT)
