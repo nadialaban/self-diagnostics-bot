@@ -12,7 +12,7 @@ from pyaspeller import YandexSpeller
 
 app = Flask(__name__)
 speller = YandexSpeller()
-mystem = Mystem()
+mystem = Mystem(MYSTEM)
 russian_stopwords = stopwords.words("russian")
 
 
