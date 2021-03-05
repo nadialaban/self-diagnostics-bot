@@ -1,0 +1,236 @@
+{
+      "alg": [
+            {
+                  "target": "being-sick",
+                  "name": "being-sick"
+            },
+            {
+                  "target": "body-armor",
+                  "name": "body-armor"
+            },
+            {
+                  "target": "chickenpox",
+                  "name": "chickenpox"
+            },
+            {
+                  "target": "closed-eye",
+                  "name": "closed-eye"
+            },
+            {
+                  "target": "coronavirus",
+                  "name": "coronavirus"
+            },
+            {
+                  "target": "coughing",
+                  "name": "coughing"
+            },
+            {
+                  "target": "fever",
+                  "name": "fever"
+            },
+            {
+                  "target": "headache",
+                  "name": "headache"
+            },
+            {
+                  "target": "heart",
+                  "name": "heart"
+            },
+            {
+                  "target": "heart-with-pulse",
+                  "name": "heart-with-pulse"
+            },
+            {
+                  "target": "human-head",
+                  "name": "human-head"
+            },
+            {
+                  "target": "hypertension",
+                  "name": "hypertension"
+            },
+            {
+                  "target": "lungs",
+                  "name": "lungs"
+            },
+            {
+                  "target": "muscle",
+                  "name": "muscle"
+            }
+      ],
+      "symptoms": [
+            {
+                  "target": "bandage",
+                  "name": "bandage"
+            },
+            {
+                  "target": "being-sick",
+                  "name": "being-sick"
+            },
+            {
+                  "target": "chickenpox",
+                  "name": "chickenpox"
+            },
+            {
+                  "target": "closed-eye",
+                  "name": "closed-eye"
+            },
+            {
+                  "target": "communication",
+                  "name": "communication"
+            },
+            {
+                  "target": "coronavirus",
+                  "name": "coronavirus"
+            },
+            {
+                  "target": "coughing",
+                  "name": "coughing"
+            },
+            {
+                  "target": "fever",
+                  "name": "fever"
+            },
+            {
+                  "target": "headache",
+                  "name": "headache"
+            },
+            {
+                  "target": "heart",
+                  "name": "heart"
+            },
+            {
+                  "target": "heart-with-pulse",
+                  "name": "heart-with-pulse"
+            },
+            {
+                  "target": "hypertension",
+                  "name": "hypertension"
+            },
+            {
+                  "target": "lungs",
+                  "name": "lungs"
+            },
+            {
+                  "target": "runny-nose",
+                  "name": "runny-nose"
+            },
+            {
+                  "target": "warm",
+                  "name": "warm"
+            }
+      ],
+      "res": [
+            {
+                  "target": "ambulance",
+                  "name": "ambulance"
+            },
+            {
+                  "target": "bandage",
+                  "name": "bandage"
+            },
+            {
+                  "target": "checkmark",
+                  "name": "checkmark"
+            },
+            {
+                  "target": "being-sick",
+                  "name": "being-sick"
+            },
+            {
+                  "target": "communication",
+                  "name": "communication"
+            },
+            {
+                  "target": "doctors-bag",
+                  "name": "doctors-bag"
+            },
+            {
+                  "target": "health-book",
+                  "name": "health-book"
+            },
+            {
+                  "target": "heart",
+                  "name": "heart"
+            },
+            {
+                  "target": "heart-health",
+                  "name": "heart-health"
+            },
+            {
+                  "target": "heart-with-pulse",
+                  "name": "heart-with-pulse"
+            },
+            {
+                  "target": "hospital-3",
+                  "name": "hospital-3"
+            },
+            {
+                  "target": "hospital-bed",
+                  "name": "hospital-bed"
+            },
+            {
+                  "target": "hypertension",
+                  "name": "hypertension"
+            },
+            {
+                  "target": "insulin-pen",
+                  "name": "insulin-pen"
+            },
+            {
+                  "target": "medical-doctor",
+                  "name": "medical-doctor"
+            },
+            {
+                  "target": "microscope",
+                  "name": "microscope"
+            },
+            {
+                  "target": "muscle",
+                  "name": "muscle"
+            },
+            {
+                  "target": "ophthalmology",
+                  "name": "ophthalmology"
+            },
+            {
+                  "target": "pills",
+                  "name": "pills"
+            },
+            {
+                  "target": "pram",
+                  "name": "pram"
+            },
+            {
+                  "target": "protection-mask",
+                  "name": "protection-mask"
+            },
+            {
+                  "target": "speech-bubble",
+                  "name": "speech-bubble"
+            },
+            {
+                  "target": "stethoscope",
+                  "name": "stethoscope"
+            },
+            {
+                  "target": "syringe",
+                  "name": "syringe"
+            },
+            {
+                  "target": "throat-spray",
+                  "name": "throat-spray"
+            },
+            {
+                  "target": "treatmentm",
+                  "name": "treatmentm"
+            },
+            {
+                  "target": "yoga",
+                  "name": "yoga"
+            },
+            {
+                  "target": "warm",
+                  "name": "warm"
+            }
+      ]
+}

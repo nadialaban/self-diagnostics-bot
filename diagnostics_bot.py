@@ -3,6 +3,7 @@ from flask import Flask, request, render_template
 from config import *
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import create_engine
 import requests
 import nltk
 from nltk.corpus import stopwords
@@ -14,7 +15,7 @@ app = Flask(__name__)
 speller = YandexSpeller()
 mystem = Mystem(MYSTEM)
 russian_stopwords = stopwords.words("russian")
-
+icons = {}
 
 # 1. Оисание работы с базой данных.
 # 1.1. Подключение к бд.
@@ -22,7 +23,7 @@ db_string = "postgres://{}:{}@{}:{}/{}".format(DB_USER, DB_PASSWORD, DB_HOST, DB
 app.config['SQLALCHEMY_DATABASE_URI'] = db_string
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
-
+engine = create_engine(db_string)
 
 # 1.2. Описание моделей.
 # 1.2.1. Алгоритм.
@@ -30,6 +31,7 @@ class Algorithm(db.Model):
     __tablename__ = 'algorithms'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.Text)
+    icon = db.Column(db.Text)
     description = db.Column(db.Text)
     creator = db.Column(db.Text)
     is_used = db.Column(db.Boolean)
@@ -45,6 +47,7 @@ class Question(db.Model):
     algorithm_id = db.Column(db.Integer, db.ForeignKey('algorithms.id'))
     question_id = db.Column(db.Integer)
     text = db.Column(db.Text)
+    icon = db.Column(db.Text)
     answers = db.Column(db.ARRAY(db.Text))
     next_states = db.Column(db.ARRAY(db.Text))
 
@@ -56,6 +59,7 @@ class Result(db.Model):
     algorithm_id = db.Column(db.Integer, db.ForeignKey('algorithms.id'))
     result_id = db.Column(db.Integer)
     title = db.Column(db.Text)
+    icon = db.Column(db.Text)
     description = db.Column(db.Text)
     color = db.Column(db.Text)
     need_warn = db.Column(db.Boolean)
@@ -90,7 +94,7 @@ def get_contract(contract_id):
     return contract
 
 
-# 1.3.2. Добавление контракта.
+# 1.3.3. Добавление контракта.
 def add_contract(contract_id, clinic_id, algorithms=None):
     if algorithms is None:
         algorithms = []
@@ -110,7 +114,7 @@ def add_contract(contract_id, clinic_id, algorithms=None):
     return 'ok'
 
 
-# 1.3.3. Удаление контракта.
+# 1.3.4. Удаление контракта.
 def del_contract(contract_id):
     try:
         db.session.query(Contract).filter_by(contract_id=str(contract_id)).delete()
@@ -122,7 +126,7 @@ def del_contract(contract_id):
     return 'ok'
 
 
-# 1.3.2. Обновление контракта.
+# 1.3.5. Обновление контракта.
 def update_contract(contract, algorithms):
     try:
         contract.algorithms = algorithms
@@ -269,14 +273,17 @@ def check_message():
     algorithms = db.session.query(Algorithm).filter(
         Algorithm.id.in_(contract.algorithms)).all()
     detected_algorithms = []
+    detected_algorithms_id = []
 
-    corrected_message = speller.spelled(data['message']['text'].lower())
-    preprocessed_message = preprocess_text(corrected_message)
+    preprocessed_message = preprocess_text(data['message']['text'])
+    corrected_tokens = speller.spelled(" ".join(preprocessed_message))
+    preprocessed_message = preprocess_text(corrected_tokens)
     for alg in algorithms:
         for word in alg.keywords:
             preprocessed_keyword = preprocess_text(word)
             if all(item in preprocessed_message for item in preprocessed_keyword):
                 detected_algorithms.append('• {}'.format(alg.title))
+                detected_algorithms_id.append(alg.id)
                 break
 
     if len(detected_algorithms) != 0:
@@ -286,7 +293,7 @@ def check_message():
             "message": {
                 "text": "Попробуйте пройти один из следующих сценариев самодиагностики, пока ожидаете ответ от врача:\n\n{}".format(
                     str.join('\n', detected_algorithms)),
-                "action_link": "/action_algorithms",
+                "action_link": "/action_algorithms/" + '_'.join(detected_algorithms_id),
                 "action_name": "Самодиагностика",
                 "only_doctor": False,
                 "only_patient": True
@@ -303,8 +310,8 @@ def check_message():
 
 # 2.3. Основные методы.
 # 2.3.1. Выбор алгоритма
-@app.route('/action_algorithms/', methods=['GET'])
-def action_algorithms():
+@app.route('/action_algorithms/<string:algorithms>', methods=['GET'])
+def action_algorithms(algorithms):
     key = request.args.get('api_key', '')
     contract_id = request.args.get('contract_id', '')
     contract = get_contract(contract_id)
@@ -314,15 +321,29 @@ def action_algorithms():
     if check != 'ok':
         return check
 
+    recommended_ids = [int(alg_id) for alg_id in algorithms.split('_') if alg_id != '']
+    recommended_algorithms = db.session.query(Algorithm).filter(Algorithm.id.in_(recommended_ids)).all()
     algorithms = db.session.query(Algorithm).filter(Algorithm.id.in_(contract.algorithms)).all()
 
     info = []
-    for algorithm in algorithms:
+    for algorithm in recommended_algorithms:
         info.append({
             'id': algorithm.id,
             'title': algorithm.title,
             'description': algorithm.description,
+            'icon': algorithm.icon,
+            'recommended': True
         })
+
+    for algorithm in algorithms:
+        if algorithm.id not in recommended_ids:
+            info.append({
+                'id': algorithm.id,
+                'title': algorithm.title,
+                'description': algorithm.description,
+                'icon': algorithm.icon,
+                'recommended': False
+            })
 
     page_data = {
         'algorithms': info,
@@ -411,14 +432,16 @@ def action_edit(algorithm_id):
     all_algorithms.extend(Algorithm.query.filter_by(creator=clinic_id).all())
     algorithms = []
 
-    for algorithm in all_algorithms:
-        algorithms.append(algorithm.title)
 
+    for algorithm in all_algorithms:
+        if algorithm.id != algorithm_id:
+            algorithms.append(['a-'+str(algorithm.id), algorithm.title])
     page_data = {
         'contract_id': contract_id,
         'algorithms': algorithms,
         'message': ' ',
-        'algorithm_data': {}
+        'algorithm_data': {},
+        'icons': icons
     }
 
     if algorithm_id == 0:
@@ -426,19 +449,22 @@ def action_edit(algorithm_id):
             'id': algorithm_id,
             'can_delete': False,
             'title': '',
+            'icon': 'human-head',
             'description': '',
             'keywords': '',
             'questions': [{
                 'id': 1,
                 'text': '',
+                'icon': 'communication',
                 'answers': ['Да', 'Нет'],
                 'next_states': ['', '']
             }],
             'results': [{
                 'id': 1,
                 'title': '',
+                'icon': 'health-book',
                 'description': '',
-                'color': '',
+                'color': 'grey',
                 'need_warn': False,
                 'need_response': False,
                 'message': ''
@@ -446,7 +472,6 @@ def action_edit(algorithm_id):
         }
     else:
         page_data['algorithm_data'] = algorithm_to_dict(algorithm_id)
-        page_data['algorithms'].remove(page_data['algorithm_data']['title'])
 
     return render_template('edit_algorithm.html', page_data=page_data, agent_id=AGENT_ID, agent_token=agent_token)
 
@@ -474,6 +499,7 @@ def action_save(algorithm_id):
         algorithm = Algorithm()
 
     algorithm.creator = contract.clinic_id
+    algorithm.icon = request.form.get('icon-a', '')
     algorithm.title = request.form.get('title', '')
     algorithm.description = request.form.get('description', '')
     keywords = request.form.get('keywords', '').split('\n')
@@ -490,7 +516,8 @@ def action_save(algorithm_id):
     while request.form.get('q-{}-text'.format(i), ''):
         q = Question(algorithm_id=algorithm.id,
                      question_id=i,
-                     text=request.form.get('q-{}-text'.format(i), ''))
+                     text=request.form.get('q-{}-text'.format(i), ''),
+                     icon=request.form.get('icon-q-{}'.format(i), 'communication'))
         answers = []
         next_states = []
         j = 1
@@ -498,12 +525,7 @@ def action_save(algorithm_id):
         while request.form.get('q-{}-a-{}'.format(i, j), ''):
             answers.append(request.form.get('q-{}-a-{}'.format(i, j), ''))
             ns = request.form.get('q-{}-ns-{}'.format(i, j), '')
-            if ns[0] == 'с':
-                alg = Algorithm.query.filter_by(title=str.join('"', ns.split('"')[1:-1])).first()
-                alg.is_used = True
-                next_states.append('a-{}'.format(alg.id))
-            else:
-                next_states.append(ns)
+            next_states.append(ns)
             j += 1
         q.next_states = next_states
         q.answers = answers
@@ -519,7 +541,8 @@ def action_save(algorithm_id):
                      color=request.form.get('r-{}-color'.format(i), ''),
                      need_warn=request.form.get('r-{}-nw'.format(i), '') != '',
                      need_response=request.form.get('r-{}-nr'.format(i), '') != '',
-                     message=request.form.get('r-{}-message'.format(i), ''))
+                     message=request.form.get('r-{}-message'.format(i), ''),
+                     icon=request.form.get('icon-r-{}'.format(i), 'health-book'))
         db.session.add(res)
         i += 1
 
@@ -576,14 +599,20 @@ def send_result(contract_id, result, symptoms):
 
 # 3.2. Перенос данных из JSON в БД
 def load():
+    global icons
     try:
         with open('data.json', 'r') as f:
             contracts = json.load(f)
         for contract in contracts.keys():
             add_contract(contract, contracts[contract]['clinic_id'], contracts[contract]['algorithms'])
-    except Exception as e:
-        print(e)
-    nltk.download("stopwords")
+    except:
+        pass
+
+    try:
+        with open('icons.json', 'r') as f:
+            icons = json.load(f)
+    except:
+        pass
 
 
 # 3.3. Проверка токенов.
@@ -601,6 +630,7 @@ def algorithm_to_dict(algorithm_id):
     algorithm_data = {
         'id': algorithm_id,
         'title': algorithm.title,
+        'icon': algorithm.icon,
         'description': algorithm.description,
         'can_delete': not algorithm.is_used,
         'keywords': str.join('\n', algorithm.keywords),
@@ -615,6 +645,7 @@ def algorithm_to_dict(algorithm_id):
             'text': algorithm.questions[i].text,
             'answers': algorithm.questions[i].answers,
             'next_states': algorithm.questions[i].next_states,
+            'icon': algorithm.questions[i].icon,
             'first': i == 0
         }
         algorithm_data['questions'].append(question)
@@ -625,9 +656,11 @@ def algorithm_to_dict(algorithm_id):
             'title': algorithm.results[i].title,
             'description': algorithm.results[i].description,
             'color': algorithm.results[i].color,
+            'alert_type': '',
             'need_warn': algorithm.results[i].need_warn,
             'need_response': algorithm.results[i].need_response,
             'message': algorithm.results[i].message,
+            'icon': algorithm.results[i].icon,
             'last': True
         }
         algorithm_data['results'].append(res)
@@ -654,18 +687,25 @@ def get_symptoms(states):
 
 # 3.6. Preprocess function
 def preprocess_text(text):
-    tokens = mystem.lemmatize(text.lower())
+    # Tокенизирую
+    text = text.lower()
+    tokens = mystem.lemmatize(text)
     # Убираю все лишнее
     tokens = [token for token in tokens if token not in russian_stopwords
               and token != " " and token.strip() not in punctuation]
-
-    text = " ".join(tokens)
 
     return tokens
 
 
 # 4. Запуск
+load()
 
+try:
+    engine.execute('ALTER TABLE questions ADD COLUMN icon varchar(255)')
+    engine.execute("ALTER TABLE results ADD COLUMN icon varchar(255)")
+    engine.execute("ALTER TABLE algorithms ADD COLUMN icon varchar(255)")
+except Exception as e:
+    pass
 
 if __name__ == '__main__':
     load()
