@@ -310,6 +310,7 @@ def check_message():
 
 # 2.3. Основные методы.
 # 2.3.1. Выбор алгоритма
+@app.route('/action_algorithms', methods=['GET'], defaults={'algorithms': '_'})
 @app.route('/action_algorithms/<string:algorithms>', methods=['GET'])
 def action_algorithms(algorithms):
     key = request.args.get('api_key', '')
