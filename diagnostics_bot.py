@@ -293,7 +293,7 @@ def check_message():
             "message": {
                 "text": "Попробуйте пройти один из следующих сценариев самодиагностики, пока ожидаете ответ от врача:\n\n{}".format(
                     str.join('\n', detected_algorithms)),
-                "action_link": "/action_algorithms/" + '_'.join(detected_algorithms_id),
+                "action_link": "/action_algorithms/" + '_'.join([str(alg) for alg in detected_algorithms_id]),
                 "action_name": "Самодиагностика",
                 "only_doctor": False,
                 "only_patient": True
