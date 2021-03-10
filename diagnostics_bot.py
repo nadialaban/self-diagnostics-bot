@@ -328,6 +328,9 @@ def action_algorithms(algorithms):
 
     info = []
     for algorithm in recommended_algorithms:
+        if algorithm.icon is None:
+            algorithm.icon = 'being-sick'
+
         info.append({
             'id': algorithm.id,
             'title': algorithm.title,
@@ -338,6 +341,9 @@ def action_algorithms(algorithms):
 
     for algorithm in algorithms:
         if algorithm.id not in recommended_ids:
+            if algorithm.icon is None:
+                algorithm.icon = 'being-sick'
+
             info.append({
                 'id': algorithm.id,
                 'title': algorithm.title,
@@ -345,6 +351,8 @@ def action_algorithms(algorithms):
                 'icon': algorithm.icon,
                 'recommended': False
             })
+
+    db.session.commit()
 
     page_data = {
         'algorithms': info,
@@ -628,6 +636,8 @@ def check_data(contract, key=APP_KEY):
 # 3.4. Формирование словаря из алгоритма
 def algorithm_to_dict(algorithm_id):
     algorithm = Algorithm.query.filter_by(id=algorithm_id).first()
+    if algorithm.icon is None:
+        algorithm.icon = 'being-sick'
     algorithm_data = {
         'id': algorithm_id,
         'title': algorithm.title,
@@ -641,6 +651,9 @@ def algorithm_to_dict(algorithm_id):
     }
 
     for i in range(len(algorithm.questions)):
+        if algorithm.questions[i].icon is None:
+            algorithm.questions[i].icon = 'communication'
+
         question = {
             'id': algorithm.questions[i].question_id,
             'text': algorithm.questions[i].text,
@@ -652,6 +665,9 @@ def algorithm_to_dict(algorithm_id):
         algorithm_data['questions'].append(question)
 
     for i in range(len(algorithm.results)):
+        if algorithm.results[i].icon is None:
+            algorithm.results[i].icon = 'health-book'
+
         res = {
             'id': algorithm.results[i].result_id,
             'title': algorithm.results[i].title,
