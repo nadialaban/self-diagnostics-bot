@@ -29,12 +29,14 @@
 
            {% if algorithm.recommended %}
              <button class="btn btn-info btn-block text-left col-10" type="button" data-toggle="collapse"
-                data-target="#collapse{{algorithm.id}}" aria-expanded="false" aria-controls="collapse{{algorithm.id}}">
+                data-target="#collapse{{algorithm.id}}" aria-expanded="false" aria-controls="collapse{{algorithm.id}}"
+                style="border-radius: 5px 5px 0 0 !important;">
              {{ algorithm.title }}
              </button>
              {% else %}
              <button class="btn btn-outline-info btn-block text-left col-10" type="button" data-toggle="collapse"
-                data-target="#collapse{{algorithm.id}}" aria-expanded="false" aria-controls="collapse{{algorithm.id}}">
+                data-target="#collapse{{algorithm.id}}" aria-expanded="false" aria-controls="collapse{{algorithm.id}}"
+                style="border-radius: 5px 5px 0 0 !important;">
              {{ algorithm.title }}
              </button>
            {% endif %}
@@ -42,7 +44,7 @@
          <div class="row">
          <div class="col-10 offset-2">
           <div class="collapse" id="collapse{{algorithm.id}}" >
-               <div class="card card-body text-justify">
+               <div class="card card-body text-justify col-10 offset-2" style="border-radius: 0 0 5px 5px !important;">
                   {{ algorithm.description }}
                   <a href="/api/client/agents/{{ agent_id }}/?action=action_test/0/{{algorithm.id}}/_&contract_id={{ page_data['contract_id'] }}&agent_token={{ agent_token }}"
                      class="btn btn-block btn-info" style="margin-top: 15px; width: 200px;">Начать</a>
