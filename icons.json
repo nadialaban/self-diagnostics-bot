@@ -1,236 +1,186 @@
 {
-      "alg": [
-            {
-                  "target": "being-sick",
-                  "name": "being-sick"
-            },
-            {
-                  "target": "body-armor",
-                  "name": "body-armor"
-            },
-            {
-                  "target": "chickenpox",
-                  "name": "chickenpox"
-            },
-            {
-                  "target": "closed-eye",
-                  "name": "closed-eye"
-            },
-            {
-                  "target": "coronavirus",
-                  "name": "coronavirus"
-            },
-            {
-                  "target": "coughing",
-                  "name": "coughing"
-            },
-            {
-                  "target": "fever",
-                  "name": "fever"
-            },
-            {
-                  "target": "headache",
-                  "name": "headache"
-            },
-            {
-                  "target": "heart",
-                  "name": "heart"
-            },
-            {
-                  "target": "heart-with-pulse",
-                  "name": "heart-with-pulse"
-            },
-            {
-                  "target": "human-head",
-                  "name": "human-head"
-            },
-            {
-                  "target": "hypertension",
-                  "name": "hypertension"
-            },
-            {
-                  "target": "lungs",
-                  "name": "lungs"
-            },
-            {
-                  "target": "muscle",
-                  "name": "muscle"
-            }
-      ],
       "symptoms": [
             {
-                  "target": "bandage",
-                  "name": "bandage"
+                  "file_name": "bandage",
+                  "description": "Пластырь"
             },
             {
-                  "target": "being-sick",
-                  "name": "being-sick"
+                  "file_name": "body-armor",
+                  "description": "Футболка"
             },
             {
-                  "target": "chickenpox",
-                  "name": "chickenpox"
+                  "file_name": "being-sick",
+                  "description": "Болезнь"
             },
             {
-                  "target": "closed-eye",
-                  "name": "closed-eye"
+                  "file_name": "chickenpox",
+                  "description": "Сыпь"
             },
             {
-                  "target": "communication",
-                  "name": "communication"
+                  "file_name": "closed-eye",
+                  "description": "Закрытый глаз"
             },
             {
-                  "target": "coronavirus",
-                  "name": "coronavirus"
+                  "file_name": "communication",
+                  "description": "Общение"
             },
             {
-                  "target": "coughing",
-                  "name": "coughing"
+                  "file_name": "coronavirus",
+                  "description": "Вирус"
             },
             {
-                  "target": "fever",
-                  "name": "fever"
+                  "file_name": "coughing",
+                  "description": "Кашель"
             },
             {
-                  "target": "headache",
-                  "name": "headache"
+                  "file_name": "fever",
+                  "description": "Жар"
             },
             {
-                  "target": "heart",
-                  "name": "heart"
+                  "file_name": "headache",
+                  "description": "Головная боль"
             },
             {
-                  "target": "heart-with-pulse",
-                  "name": "heart-with-pulse"
+                  "file_name": "heart",
+                  "description": "Сердце"
             },
             {
-                  "target": "hypertension",
-                  "name": "hypertension"
+                  "file_name": "heart-with-pulse",
+                  "description": "Пульс"
             },
             {
-                  "target": "lungs",
-                  "name": "lungs"
+                  "file_name": "hypertension",
+                  "description": "Проблемы с сердцем"
             },
             {
-                  "target": "runny-nose",
-                  "name": "runny-nose"
+                  "file_name": "lungs",
+                  "description": "Легкие"
             },
             {
-                  "target": "warm",
-                  "name": "warm"
+                  "file_name": "human-head",
+                  "description": "Голова"
+            },
+            {
+                  "file_name": "runny-nose",
+                  "description": "Насморк"
+            },
+            {
+                  "file_name": "warm",
+                  "description": "Термометр"
+            },
+            {
+                  "file_name": "muscle",
+                  "description": "Мышцы"
             }
       ],
-      "res": [
+      "results": [
             {
-                  "target": "ambulance",
-                  "name": "ambulance"
+                  "file_name": "ambulance",
+                  "description": "Скорая Помощь"
             },
             {
-                  "target": "bandage",
-                  "name": "bandage"
+                  "file_name": "bandage",
+                  "description": "Пластырь"
             },
             {
-                  "target": "checkmark",
-                  "name": "checkmark"
+                  "file_name": "checkmark",
+                  "description": "Галочка"
             },
             {
-                  "target": "being-sick",
-                  "name": "being-sick"
+                  "file_name": "communication",
+                  "description": "Общение"
             },
             {
-                  "target": "communication",
-                  "name": "communication"
+                  "file_name": "doctors-bag",
+                  "description": "Сумка врача"
             },
             {
-                  "target": "doctors-bag",
-                  "name": "doctors-bag"
+                  "file_name": "health-book",
+                  "description": "Медкарта"
             },
             {
-                  "target": "health-book",
-                  "name": "health-book"
+                  "file_name": "heart",
+                  "description": "Сердце"
             },
             {
-                  "target": "heart",
-                  "name": "heart"
+                  "file_name": "heart-health",
+                  "description": "Здоровое сердце"
             },
             {
-                  "target": "heart-health",
-                  "name": "heart-health"
+                  "file_name": "heart-with-pulse",
+                  "description": "Пульс"
             },
             {
-                  "target": "heart-with-pulse",
-                  "name": "heart-with-pulse"
+                  "file_name": "hospital-3",
+                  "description": "Больница"
             },
             {
-                  "target": "hospital-3",
-                  "name": "hospital-3"
+                  "file_name": "hospital-bed",
+                  "description": "Постельный режим"
             },
             {
-                  "target": "hospital-bed",
-                  "name": "hospital-bed"
+                  "file_name": "hypertension",
+                  "description": "Проблемы с серддцем"
             },
             {
-                  "target": "hypertension",
-                  "name": "hypertension"
+                  "file_name": "insulin-pen",
+                  "description": "Шприц-1"
             },
             {
-                  "target": "insulin-pen",
-                  "name": "insulin-pen"
+                  "file_name": "medical-doctor",
+                  "description": "Врач"
             },
             {
-                  "target": "medical-doctor",
-                  "name": "medical-doctor"
+                  "file_name": "microscope",
+                  "description": "Микроскоп"
             },
             {
-                  "target": "microscope",
-                  "name": "microscope"
+                  "file_name": "muscle",
+                  "description": "Мышцы"
             },
             {
-                  "target": "muscle",
-                  "name": "muscle"
+                  "file_name": "ophthalmology",
+                  "description": "Офтальмолог"
             },
             {
-                  "target": "ophthalmology",
-                  "name": "ophthalmology"
+                  "file_name": "pills",
+                  "description": "Таблетки"
             },
             {
-                  "target": "pills",
-                  "name": "pills"
+                  "file_name": "pram",
+                  "description": "Ребенок"
             },
             {
-                  "target": "pram",
-                  "name": "pram"
+                  "file_name": "protection-mask",
+                  "description": "Человек в маске"
             },
             {
-                  "target": "protection-mask",
-                  "name": "protection-mask"
+                  "file_name": "speech-bubble",
+                  "description": "Консультация"
             },
             {
-                  "target": "speech-bubble",
-                  "name": "speech-bubble"
+                  "file_name": "stethoscope",
+                  "description": "Стетоскоп"
             },
             {
-                  "target": "stethoscope",
-                  "name": "stethoscope"
+                  "file_name": "syringe",
+                  "description": "Шприц-2"
             },
             {
-                  "target": "syringe",
-                  "name": "syringe"
+                  "file_name": "throat-spray",
+                  "description": "Лекарство"
             },
             {
-                  "target": "throat-spray",
-                  "name": "throat-spray"
+                  "file_name": "treatmentm",
+                  "description": "Диагноз"
             },
             {
-                  "target": "treatmentm",
-                  "name": "treatmentm"
+                  "file_name": "yoga",
+                  "description": "Спорт"
             },
             {
-                  "target": "yoga",
-                  "name": "yoga"
-            },
-            {
-                  "target": "warm",
-                  "name": "warm"
+                  "file_name": "warm",
+                  "description": "Термометр"
             }
       ]
 }

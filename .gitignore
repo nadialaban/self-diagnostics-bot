@@ -1,5 +1,22 @@
+icons.json
+config.py
+
 __pycache__
 myenv
+migrations
+.DS_Store
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Editor directories and files
+.idea
+.idea/
 *.idea
-data.json
-config.py
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+package-lock.json
+static/build.js
+static/build.js.map
