@@ -40,76 +40,45 @@ Vue.mixin({
         empty: function (e) {
             return !e && e !== 0
         },
-        get_algorithm: function (algorithm_id) {
-            let alg = null
-            this.axios.get(this.url('/api/algorithm/' + algorithm_id))
-                .then(response => alg = response).catch(this.process_load_error);
-            return alg
-        },
         get_empty_algorithm: function () {
             return {
-                'id': null,
-                'creator': window.CLINIC_ID,
-                'title': '',
-                'icon': '',
-                'patient_description': '',
-                'doctor_description': '',
-                'keywords': '',
-                'depended_algorithms': [],
-                'depends': false,
-                'questions': [this.get_empty_question(1)],
-                'results': [this.get_empty_result(1)]
+                id: null,
+                creator: window.CLINIC_ID,
+                title: '',
+                icon: '',
+                patient_description: '',
+                doctor_description: '',
+                keywords: '',
+                depended_algorithms: [],
+                depends: false,
+                questions: [this.get_empty_question(1, 0)],
+                results: [this.get_empty_result(1, 0)]
             }
         },
-        get_empty_question: function (question_id) {
+        get_empty_question: function (question_id, key) {
             return {
-                'id': question_id,
-                'description': '',
-                'answers': [
-                    {
-                        'answer': 'Да',
-                        'next_state': ''
-                    },
-                    {
-                        'answer': 'Нет',
-                        'next_state': ''
-                    }
+                id: question_id,
+                key: key,
+                description: '',
+                answers: [
+                    { answer: 'Да', next_state: ''},
+                    { answer: 'Нет', next_state: ''}
                 ],
-                'icon': ''
+                icon: ''
             }
         },
-        get_empty_result: function (result_id) {
+        get_empty_result: function (result_id, key) {
             return {
-                'id': result_id,
-                'title': '',
-                'description': '',
-                'color': '',
-                'need_warn': false,
-                'need_response': false,
-                'message': '',
-                'icon': ''
+                id: result_id,
+                key: key,
+                title: '',
+                description: '',
+                color: '',
+                need_warn: false,
+                need_response: false,
+                message: '',
+                icon: ''
             }
-        },
-        get_algorithms: function () {
-            let algs = null
-            this.axios.get(this.url('/api/algorithms'))
-                .then(response => algs = response).catch(this.process_load_error);
-            return algs
-        },
-        get_enabled_algorithms: function () {
-            let algs = null
-            this.axios.get(this.url('/api/enabled_algorithms'))
-                .then(response => algs = response).catch(this.process_load_error);
-            return algs
-        },
-        get_icons: function () {
-            let icons = null
-            this.axios.get(this.url('/api/icons'))
-                .then(response => icons = response).catch(this.process_load_error);
-            return icons
-        },
-        process_load_error: function (response) {
-            Event.fire('load-error');
         }
     },
     data() {

@@ -1,36 +1,35 @@
 <template>
-  <div class="container">
+  <div style="margin-top: 20px;">
     <h5>{{ title }}</h5>
     <label>Кнопка будет закрашена, если все поля внутри заполнены корректно</label>
 
-    <div class="container" v-for="(object, i) in objects">
+    <div v-for="(object, i) in objects" :key="object.key">
       <div class="btn-group d-flex" role="group">
-        <button class="btn btn-block text-left" data-toggle="collapse" aria-expanded="false"
-                :class="errors[i] && this.validate(type, object) ? 'btn-secondary' : 'btn-outline-danger'"
+        <button class="btn text-left" data-toggle="collapse" aria-expanded="false"
+                :class="errors[i] && validate(object) ? (type == 'r'? get_button_color(object.color) : 'btn-secondary') : 'btn-outline-danger'"
                 :data-target="'#collapse-' + type + '-' + object.id" :aria-controls="'collapse-' + type + '-' + object.id">
-          {{ (type == 'q' ? 'Вопрос ' : 'Исход ') + object.id }}. {{ object.description }}
+          {{ (type == 'q' ? 'Вопрос ' : 'Исход ') + object.id }}. {{ type == 'q' ? object.description : object.title }}
         </button>
 
         <button class="col-1 btn btn-outline-secondary" aria-label="Close"
-                v-if="objects.length > 1"
-                @click="del(object.id)">
+                v-if="objects.length > 1" @click="del(i)">
           <span aria-hidden="true">&times;</span>
         </button>
-
-        <!-- Карточка внутри -->
-
-        <div class="collapse" v-bind:id="'collapse-' + type + '-' + object.id">
-          <div class="card card-body">
-            <question-editor v-if="type == 'q'" :data="object"
-                             :results="results" :algorithms="algorithms" :questions="objects"
-                             :errors="errors[i]"></question-editor>
-
-            <result-editor v-if="type == 'r'" :data="object"
-                           :errors="errors[i]"></result-editor>
-          </div>
-        </div>
-
       </div>
+
+      <!-- Карточка внутри -->
+
+      <div class="collapse" v-bind:id="'collapse-' + type + '-' + object.id">
+        <div class="card card-body">
+          <question-editor v-if="type == 'q'" :data="object" :icons="icons"
+                           :results="results" :algorithms="algorithms" :questions="objects"
+                           :errors="errors[i]"></question-editor>
+
+          <result-editor v-if="type == 'r'" :data="object" :icons="icons"
+                         :errors="errors[i]"></result-editor>
+        </div>
+      </div>
+
     </div>
 
     <!-- Кнопки добавления для вопросов -->
@@ -44,7 +43,7 @@
     </div>
 
     <!-- Кнопка добавления для исходов -->
-    <button class="btn btn-outline-info" @click="add_result()" style="margin-top: 5px;">
+    <button v-if="type == 'r'" class="btn btn-outline-info" @click="add_result()" style="margin-top: 5px;">
       Добавить исход
     </button>
 
@@ -59,17 +58,17 @@ import ResultEditor from "./ResultEditor";
 export default {
   name: "ArrayEditor",
   components: {ResultEditor, QuestionEditor},
-  props: ['data', 'title', 'type', 'results', 'algorithms', 'errors'],
+  props: ['objects', 'title', 'type', 'results', 'algorithms', 'errors', 'icons', 'algorithm_id'],
   methods: {
-    validate: function (type, obj) {
-      switch (type) {
+    validate: function (obj) {
+      switch (this.type) {
         case 'q':
           let validate_answers = (answer) => {
             if (!answer.answer || answer.answer == 0) return true;
             if (!answer.next_state) return true;
           }
 
-          if (this.obj.answers.filter(validate_answers).length > 0) {
+          if (obj.answers.filter(validate_answers).length > 0) {
             return false
           }
 
@@ -79,70 +78,40 @@ export default {
               (obj.need_warn && obj.message || !obj.need_warn);
       }
     },
-    del: function (object_id) {
-      this.objects.splice(object_id - 1, 1)
-      this.errors.splice(object_id - 1, 1)
-
-      this.objects = this.objects.map(obj => {
-        if (obj.id > object_id)
-          obj.id--
-      })
-
-      if (this.type == 'q') {
-        this.objects = this.objects.map(obj => {
-          obj.answers = obj.answers.map(ans => {
-            if (ans.next_state.startsWith('q')) {
-              let next_id = parseInt(ans.next_state.split('-')[1])
-              if (next_id == object_id)
-                ans.next_state = ''
-              else if (next_id > object_id)
-                ans.next_state = 'q-' + (next_id - 1)
-            }
-          })
-        })
-      } else {
-        Event.fire('delete-result', object_id)
+    del: function (index) {
+      switch (this.type) {
+        case 'q':
+          Event.fire('delete-question', index)
+          break
+        case 'r':
+          Event.fire('delete-result', index)
+          break
       }
     },
     add_question: function (first) {
-      if (first) {
-        let q = this.get_empty_question(1)
-        this.errors.unshift(this.get_question_errors())
-        this.objects.unshift(q)
-
-        this.objects = this.objects.map(obj => {
-          obj.answers = obj.answers.map(ans => {
-            if (ans.next_state.startsWith('q'))
-              ans.next_state = 'q-' + (parseInt(ans.next_state.split('-')[1]) + 1)
-          })
-        })
-      } else {
-        let q = this.get_empty_question(this.objects.length + 1)
-        this.objects.push(q)
-        this.errors.push(this.get_question_errors())
-      }
+      Event.fire('add-question', first)
     },
     add_result: function () {
-      let r = this.get_empty_result(this.objects.length + 1)
-      this.objects.push(r)
-      this.errors.push(this.get_result_errors())
+      Event.fire('add-result')
+    },
+    get_button_color: function (color) {
+      switch (color) {
+        case 'grey':
+          return 'btn-secondary';
+        case 'green':
+          return 'btn-success';
+        case 'yellow':
+          return 'btn-warning';
+        case 'red':
+          return 'btn-danger';
+      }
     }
-  },
-  data() {
-    return {
-      objects: []
-    }
-  },
-  created() {
-    this.objects = this.data
   }
 }
 </script>
 
 <style scoped>
 .btn-group {
-  margin-left: -15px;
-  margin-right: -15px;
   margin-top: 5px;
 }
 

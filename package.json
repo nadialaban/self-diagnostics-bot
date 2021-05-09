@@ -1,8 +1,39 @@
 {
   "name": "self-diagnostics-bot",
+  "description": "A Vue.js project",
   "version": "1.0.0",
-  "dependencies": {},
+  "main": "index.js",
+  "author": "nlaban <naabulaban@gmail.com>",
+  "license": "ISC",
+  "private": true,
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development webpack serve --open --hot",
+    "build": "cross-env NODE_ENV=production webpack --progress --hide-modules"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "uglifyjs-webpack-plugin": "^2.2.0",
+    "vue-confirm-dialog": "^1.0.2",
+    "vue-js-modal": "^2.0.0-rc.6"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not ie <= 8"
+  ],
   "devDependencies": {
-    "axios": "^0.21.1"
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.0",
+    "babel-preset-stage-3": "^6.24.1",
+    "cross-env": "^5.0.5",
+    "css-loader": "^5.2.4",
+    "file-loader": "^1.1.4",
+    "vue": "^2.6.12",
+    "vue-loader": "^14.2.2",
+    "vue-template-compiler": "^2.6.12",
+    "webpack": "^4.46.0",
+    "webpack-cli": "^4.7.0",
+    "webpack-dev-server": "^3.11.2"
   }
 }

@@ -16,20 +16,20 @@ class AlgorithmManager(Manager):
 
     # Получение доступных клинике алгоритмов
     def get_algorithms(self, clinic_id):
-        algorithms = self.db.session.query(Algorithm).filter_by(Algorithm.creator.in_([None, clinic_id])).all()
+        algorithms = self.db.session.query(Algorithm).filter(Algorithm.creator.in_([-1, clinic_id])).all()
         algorithms = [alg.as_short_dict() for alg in algorithms]
 
         return algorithms
 
     # Получение доступных пациенту алгоритмов
     def get_enabled_algorithms(self, contract):
-        algorithms = self.db.session.query(Algorithm).filter_by(Algorithm.id.in_(contract.algorithms)).all()
+        algorithms = self.db.session.query(Algorithm).filter(Algorithm.id.in_(contract.algorithms)).all()
         algorithms = [alg.as_short_dict() for alg in algorithms]
-
+        print(algorithms)
         return algorithms
 
     def is_depended_algorithm(self, algorithm_id):
-        algorithms = self.db.session.query(Algorithm).filter_by(Algorithm.depended_algorithms.contains([algorithm_id])).count()
+        algorithms = self.db.session.query(Algorithm).filter(Algorithm.depended_algorithms.any(algorithm_id)).count()
         return algorithms
 
     # Удаление алгоритма.
@@ -83,12 +83,13 @@ class AlgorithmManager(Manager):
             algorithm.doctor_description = data.get('doctor_description')
             algorithm.patient_description = data.get('patient_description')
             algorithm.depended_algorithms = data.get('depended_algorithms')
-            algorithm.icon = data.get('keywords').split('\n')
+            algorithm.keywords = data.get('keywords').split('\n')
 
             if not algorithm_id:
                 self.db.session.add(algorithm)
             self.__commit__()
 
+            self.remove_questions(algorithm.id)
             questions = data.get('questions')
             for q in questions:
                 question = Question(algorithm_id=algorithm.id, question_id=q.get('id'),
@@ -96,6 +97,7 @@ class AlgorithmManager(Manager):
                                     options=q.get('answers'))
                 self.db.session.add(question)
 
+            self.remove_results(algorithm.id)
             results = data.get('results')
             for r in results:
                 result = Result(algorithm_id=algorithm.id, result_id=r.get('id'),

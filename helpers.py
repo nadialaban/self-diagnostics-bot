@@ -7,8 +7,6 @@ import json
 
 from config import *
 
-icons = {}
-
 
 # Получение времени в строковом представлении
 def gts():
@@ -76,7 +74,7 @@ def check_data(key, contract=-1):
 
 
 # Получение интерфейса
-def get_ui(contract, mode, state, recommended_algorithms=''):
+def get_ui(contract, mode, state='loading', recommended_algorithms=''):
     agent_token = get_agent_token(contract.id)
     return render_template('index.html', mode=mode, state=state,
                            contract_id=contract.id, clinic_id=contract.clinic_id, agent_id=AGENT_ID,
@@ -103,16 +101,6 @@ def get_agent_token(contract_id):
         return answer['agent_token']
     except Exception as e:
         print('connection error', e)
-
-
-# Загрузка данных об иконках
-def load():
-    global icons
-    try:
-        with open('icons.json', 'r') as f:
-            icons = json.load(f)
-    except:
-        pass
 
 
 # 3. Работа с сообщениями

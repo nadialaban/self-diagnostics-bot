@@ -1,13 +1,16 @@
 <template>
-  <card v-for="(algorithm, index) in this.cur_algorithms"
-        :recommended="this.recommendations[index]"
-        :editable="this.editable[index]"
-        :algorithm="algorithm" :mode="this.mode">
-    <div class="input-group-text">
-      <input type="checkbox" :name="this.algorithm.id"
-             :value="this.recommendations[index]" @change="changed()">
-    </div>
-  </card>
+  <div style="margin-bottom: 20px;">
+    <card v-for="(algorithm, index) in algorithms"
+          :key="algorithm.id"
+          :recommended="recommendations[index]"
+          :editable="mode == 'admin' ? editable[index] : false"
+          :algorithm="algorithm" :mode="mode">
+      <div class="input-group-text" v-if="mode == 'admin'">
+        <input type="checkbox" :name="algorithm.id"
+               v-model="values[index]" @change="changed(index)">
+      </div>
+    </card>
+  </div>
 </template>
 
 <script>
@@ -16,30 +19,37 @@ import Card from "./Card";
 export default {
   name: "AlgorithmSelector",
   components: {Card},
-  props: ['enabled', 'mode'],
+  props: {
+    recommendations: {
+      required: true
+    },
+    algorithms: {
+      required: true
+    },
+    mode: {
+      required: true
+    },
+    editable: {
+      required: false
+    }
+  },
   methods: {
-    changed: function () {
-      Event.fire('settings-changed')
+    changed: function (index) {
+      let data = {
+        value: this.values[index],
+        index: index
+      }
+      Event.fire('settings-changed', data)
+      console.log(this.clinic_id)
     }
   },
   data() {
     return {
-      cur_algorithms: [],
-      recommendations: [],
-      editable: []
+      values: []
     }
   },
   created() {
-    this.cur_algorithms = this.mode == 'patient' ?
-        this.get_enabled_algorithms() : this.get_algorithms()
-
-    this.cur_algorithms.sort(function (x, y) {
-      return this.enabled.includes(x.id) === this.enabled.includes(y.id) ?
-          0 : this.enabled.includes(x.id) ? -1 : 1;
-    });
-
-    this.recommendations = this.cur_algorithms.map(alg => this.enabled.includes(alg.id))
-    this.editable = this.cur_algorithms.map(alg => this.clinic_id == alg.clinic_id)
+    this.values = this.recommendations
   }
 }
 </script>

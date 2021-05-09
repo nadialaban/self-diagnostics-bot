@@ -20,3 +20,4 @@ yarn-error.log
 package-lock.json
 static/build.js
 static/build.js.map
+/node_modules/vue/

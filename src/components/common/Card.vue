@@ -1,13 +1,13 @@
 <template>
   <div>
     <div class="row">
-      <div class="text-center col-2">
+      <div :class="mode == 'patient' ? 'col-1' : 'input-group col-1'">
         <img v-if="mode === 'patient'" width="35px"
              :src="this.img_url('teal',this.algorithm.icon)" alt="">
         <slot></slot>
       </div>
 
-      <div class="col-10">
+      <div class="col-11">
         <div class="btn-group d-flex" role="group">
           <input class="btn btn-block text-left" type="button" data-toggle="collapse" aria-expanded="false"
                  :class="mode === 'admin' ? 'btn-outline-secondary' : (this.recommended ? 'btn-info' : 'btn-outline-info')"
@@ -15,7 +15,7 @@
                  :aria-controls="'collapse' + this.algorithm.id">
 
           <button v-if="this.editable" type="button" class="btn btn-outline-secondary"
-                  @click="fire_event('edit-test')" style="width: 50px;">
+                  @click="fire_event('edit-algorithm')" style="width: 50px;">
             <svg viewBox="0 0 16 16" class="bi bi-pencil-square" fill="currentColor"
                  xmlns="http://www.w3.org/2000/svg">
               <path
@@ -27,7 +27,7 @@
         </div>
 
         <div class="collapse" :id="'collapse' + this.algorithm.id">
-          <div class="card card-body text-justify  col-10 offset-2">
+          <div class="card card-body text-justify">
             {{ mode === 'patient' ? algorithm.patient_description : algorithm.doctor_description }}
             <button v-if="this.mode === 'patient'" class="btn btn-block btn-info"
                     @click="fire_event('start-test')"

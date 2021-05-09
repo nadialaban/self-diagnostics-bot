@@ -1,21 +1,23 @@
 <template>
-  <h6 class="text-center" style="margin-top: 15px;">История ответов</h6>
-  <transition-group name="list" tag="p">
-    <div class="container" :key="index"
-         v-for="(answer, index) in this.history.slice().reverse()">
-      <div class="alert alert-secondary">
-        <div class="text-justify history-card"
-             v-html="format_answer(answer)"></div>
+  <div>
+    <h6 class="text-center" style="margin-top: 15px;">История ответов</h6>
+    <transition-group name="list" tag="p">
+      <div :key="answer.state_id"
+           v-for="(answer, index) in this.history.slice().reverse()">
+        <div class="alert alert-secondary">
+          <div class="text-justify history-card"
+               v-html="format_answer(answer)"></div>
+        </div>
       </div>
-    </div>
-  </transition-group>
+    </transition-group>
+  </div>
 
 </template>
 
 <script>
 export default {
-  name: "AnswerHistory"  props: ['data'],
-  components: {PageHeader},
+  name: "AnswerHistory",
+  props: ['data'],
   methods: {
     format_answer(answer) {
       return '<strong>Вопрос:</strong> ' + answer.description +

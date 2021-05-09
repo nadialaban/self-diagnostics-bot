@@ -40,6 +40,7 @@ class Algorithm(db.Model):
             'doctor_description': self.doctor_description,
             'keywords': str.join('\n', self.keywords),
             'depends': False,
+            'depended_algorithms': self.depended_algorithms,
             'questions': [q.as_dict() for q in self.questions],
             'results': [r.as_dict() for r in self.results]
         }
@@ -55,11 +56,12 @@ class Question(db.Model):
     question_id = db.Column(db.Integer)
     text = db.Column(db.Text)
     icon = db.Column(db.Text)
-    options = db.Column(db.ARRAY(db.JSON))
+    options = db.Column(db.JSON)
 
     def as_dict(self):
         return {
             'id': self.question_id,
+            'key': self.question_id - 1,
             'description': self.text,
             'answers': self.options,
             'icon': self.icon
@@ -83,6 +85,7 @@ class Result(db.Model):
     def as_dict(self):
         return {
             'id': self.result_id,
+            'key': self.result_id - 1,
             'title': self.title,
             'description': self.description,
             'color': self.color,

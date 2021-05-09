@@ -1,11 +1,11 @@
 <template>
-  <div class="container">
+  <div>
     <div class="btn-group d-flex">
       <button class="btn btn-block btn-outline-info"
               @click="fire_event('back-to-menu')">К началу
       </button>
       <button class="btn btn-block btn-outline-info"
-              v-if="!history.empty()"
+              v-if="history.length"
               @click="fire_event('previous-question')">Предыдущий вопрос
       </button>
     </div>
@@ -18,7 +18,7 @@ export default {
   props: ['history'],
   methods: {
     fire_event: function (event) {
-      if (this.history.empty()) {
+      if (!this.history.length) {
         Event.fire('back-to-menu');
       } else if (event == 'back-to-menu') {
         this.$confirm({
@@ -34,7 +34,9 @@ export default {
           }
         })
       } else {
-        let data = {'history': this.history}
+        let data = {
+          history: this.history
+        }
         Event.fire(event, data);
       }
     }
@@ -44,7 +46,10 @@ export default {
 
 <style scoped>
 .btn-group {
-  margin-top: 15px;
+  margin-top: 5px;
 }
 
+.btn {
+  margin-top: 15px;
+}
 </style>

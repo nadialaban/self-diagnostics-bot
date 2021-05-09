@@ -24,6 +24,12 @@ def index():
     return 'waiting for the thunder!'
 
 
+@app.route('/order', methods=['POST'])
+@verify_json
+def order(data):
+    pass
+
+
 # 2 Обязательные методы Интеллектуального агента.
 # 2.1. Подключение канала консультирования.
 @app.route('/init', methods=['POST'])
@@ -68,10 +74,12 @@ def status(data):
 # 2.4. Обработка нового сообщения от пациента в канале консультирования.
 @app.route('/message', methods=['POST'])
 @verify_json
-def check_message(data):
+def check_message():
+    data = request.json
     contract_id = data.get('contract_id')
     contract = contract_manager.get(contract_id)
 
+    print(data)
     detected_algorithms = message_checker.check(contract, data['message']['text'])
 
     if len(detected_algorithms) != 0:
@@ -90,7 +98,7 @@ def check_message(data):
 # 3.1. Меню настроек.
 @app.route('/settings', methods=['GET'])
 @verify_args
-def get_settings(args):
+def get_settings(args, data):
     contract = contract_manager.get(request.args.get('contract_id', ''))
     return get_ui(contract=contract, mode='admin', state='settings')
 
@@ -98,7 +106,7 @@ def get_settings(args):
 # 3.2. Сохранение настроек.
 @app.route('/api/settings/save', methods=['POST'])
 @verify_args
-def save_settings():
+def save_settings(args, data):
     contract = contract_manager.get(request.args.get('contract_id', ''))
     result = contract_manager.update(contract, request.json.get('recommendations'))
     if result:
@@ -126,7 +134,7 @@ def delete_algorithm(args, algorithm):
 
 # 4.1. Сохранение алгоритма
 @app.route('/api/settings/save_algorithm', methods=['POST'])
-# @verify_args
+@verify_args
 def save_algorithm(args, algorithm):
     contract_id = args.get('contract_id')
     contract = contract_manager.get(contract_id)
@@ -142,29 +150,43 @@ def save_algorithm(args, algorithm):
 # 5.1. Получение списка алгоритмов, доступных клинике.
 @app.route('/api/algorithms', methods=['GET'])
 @verify_args
-def get_algorithms(args):
+def get_algorithms(args, data):
     contract_id = args.get('contract_id')
     contract = contract_manager.get(contract_id)
 
     algorithms = algorithm_manager.get_algorithms(contract.clinic_id)
+    algorithms.sort(key=lambda alg: alg['clinic_id'] != contract.clinic_id)
+
+    data = {
+        'algorithms': algorithms,
+        'enabled': contract.algorithms
+    }
 
     if algorithms:
-        return jsonify(algorithms)
+        return jsonify(data)
     else:
         abort(422)
 
 
 # 5.2. Получение списка алгоритмов, доступных пациенту.
-@app.route('/api/enabled_algorithms', methods=['GET'])
+@app.route('/api/enabled_algorithms', methods=['GET'], defaults={'recommended': ''})
+@app.route('/api/enabled_algorithms/<string:recommended>', methods=['GET'])
 @verify_args
-def get_enabled_algorithms(args):
+def get_enabled_algorithms(args, data, recommended):
     contract_id = args.get('contract_id')
     contract = contract_manager.get(contract_id)
 
     algorithms = algorithm_manager.get_enabled_algorithms(contract)
 
+    recommendations = [int(alg) for alg in recommended.split('_')] if recommended != '' else []
+    algorithms.sort(key=lambda alg: alg['id'] not in recommendations)
+
+    data = {
+        'algorithms': algorithms
+    }
+
     if algorithms:
-        return jsonify(algorithms)
+        return jsonify(data)
     else:
         abort(422)
 
@@ -172,12 +194,12 @@ def get_enabled_algorithms(args):
 # 5.3. Получение алгоритма.
 @app.route('/api/algorithm/<int:algorithm_id>', methods=['GET'])
 @verify_args
-def get_algorithm(args, algorithm_id):
+def get_algorithm(args, data, algorithm_id):
     algorithm = algorithm_manager.get(algorithm_id)
 
     if algorithm:
         if algorithm_manager.is_depended_algorithm(algorithm_id):
-            algorithm['depended'] = True
+            algorithm['depends'] = True
         return jsonify(algorithm)
     else:
         abort(422)
@@ -186,7 +208,10 @@ def get_algorithm(args, algorithm_id):
 # 5.4. Получение описания иконок.
 @app.route('/api/icons', methods=['GET'])
 @verify_args
-def get_icons(args):
+def get_icons(args, data):
+    icons = {}
+    with open('icons.json', 'r') as f:
+        icons = json.load(f)
     return jsonify(icons)
 
 
@@ -194,7 +219,7 @@ def get_icons(args):
 @app.route('/algorithms', methods=['GET'], defaults={'algorithms': ''})
 @app.route('/algorithms/<string:algorithms>', methods=['GET'])
 @verify_args
-def open_main_menu(args, algorithms):
+def open_main_menu(args, data, algorithms):
     contract_id = request.args.get('contract_id', '')
     contract = contract_manager.get(contract_id)
 
@@ -203,11 +228,13 @@ def open_main_menu(args, algorithms):
 
 # 7. Завершение сценария
 @app.route('/api/result', methods=['POST'])
-def action_finish(args, result):
+@verify_args
+def action_finish(args, data):
+    data = request.json
     contract_id = request.args.get('contract_id', '')
     contract = contract_manager.get(contract_id)
 
-    data = request.json
+    result = data['result']
     patient_message = get_patient_message(data['result'], data['algorithm_title'])
     doctor_message = get_doctor_message(data['result'], data['algorithm_title'], data['history'])
 
@@ -215,12 +242,11 @@ def action_finish(args, result):
                                is_urgent=(result['color'] == 'red'))
 
     medsenger_api.send_message(contract_id, doctor_message, only_doctor=True,
-                               is_urgent=(result['color'] == 'red'), need_answer=result['need_answer'])
+                               is_urgent=(result['color'] == 'red'), need_answer=result['need_response'])
 
-    return "<strong>Спасибо, окно можно закрыть</strong><script>window.parent.postMessage('close-modal-success','*');</script>"
+    return "ok"
 
 
 # 4. Запуск
 if __name__ == '__main__':
-    load()
     app.run(debug=API_DEBUG, host=HOST, port=PORT)
