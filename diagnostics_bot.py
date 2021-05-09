@@ -74,22 +74,23 @@ def status(data):
 # 2.4. Обработка нового сообщения от пациента в канале консультирования.
 @app.route('/message', methods=['POST'])
 @verify_json
-def check_message():
+def check_message(args):
     data = request.json
     contract_id = data.get('contract_id')
     contract = contract_manager.get(contract_id)
 
-    print(data)
+    print('Received message - ', data['message']['text'])
     detected_algorithms = message_checker.check(contract, data['message']['text'])
 
     if len(detected_algorithms) != 0:
-        text = 'Попробуйте пройти один из следующих сценариев самодиагностики, пока ожидаете ответ от врача:\n\n{}'.format(
-            ['\n'.join([a['title'] for a in detected_algorithms])]
+        text = 'Попробуйте пройти один из следующих сценариев самодиагностики, пока ожидаете ответ от врача:\n\n• {}'.format(
+            '\n• '.join([a['title'] for a in detected_algorithms])
         )
         link = '/algorithms/{}'.format('_'.join([a['id'] for a in detected_algorithms]))
 
         res = medsenger_api.send_message(contract_id, text, action_link=link, action_name='Самодиагностика', only_patient=True)
 
+        print('Detected symptoms - ', [a['title'] for a in detected_algorithms])
         return res
     return 'ok'
 

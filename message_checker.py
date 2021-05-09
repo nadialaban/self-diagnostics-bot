@@ -20,14 +20,16 @@ class MessageChecker:
         enabled_algorithms = self.algorithm_manager.get_enabled_algorithms(contract)
         detected_algorithms = []
 
+        # print('1')
         msg = self.preprocess_text(message)
         msg = self.spellcheck(msg)
 
+        # print('2')
         for alg in enabled_algorithms:
             for word in alg['keywords']:
                 preprocessed_keyword = self.preprocess_text(word)
                 if all(item in msg for item in preprocessed_keyword):
-                    detected_algorithms.append({'title': '• ' + alg['title'], 'id': alg['id']})
+                    detected_algorithms.append({'title':  alg['title'], 'id': str(alg['id'])})
                     break
 
         return detected_algorithms
