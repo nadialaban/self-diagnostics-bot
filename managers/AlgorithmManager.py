@@ -25,7 +25,6 @@ class AlgorithmManager(Manager):
     def get_enabled_algorithms(self, contract):
         algorithms = self.db.session.query(Algorithm).filter(Algorithm.id.in_(contract.algorithms)).all()
         algorithms = [alg.as_short_dict() for alg in algorithms]
-        print(algorithms)
         return algorithms
 
     def is_depended_algorithm(self, algorithm_id):

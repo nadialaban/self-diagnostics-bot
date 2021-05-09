@@ -101,10 +101,10 @@ export default {
           .finally(() => this.state = 'edit-algorithm');
     });
 
-    Event.listen('back-to-menu', () => this.state = 'main');
-
     Event.listen('delete-algorithm', () => this.state = 'settings');
+
     Event.listen('back-to-settings', () => this.load_settings());
+    Event.listen('back-to-menu', () => this.load_main_page());
 
     Event.listen('algorithm-done', () => this.state = 'done');
     Event.listen('save-algorithm', () => this.state = 'done');
@@ -125,9 +125,6 @@ export default {
     },
     process_load_error: function (response) {
       Event.fire('load-error');
-    },
-    process_load_answer: function (response) {
-      Event.fire('load-answer', response.data)
     },
     load_settings: function () {
       this.axios.get(this.url('/api/algorithms'))

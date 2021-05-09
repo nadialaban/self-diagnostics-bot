@@ -1,8 +1,8 @@
 <template>
   <div>
     <page-header title="Самодиагностика">Выберите проблему, которая Вас беспокоит...</page-header>
-    <loading v-if="!updated"></loading>
-    <algorithm-selector v-else mode="patient"
+
+    <algorithm-selector mode="patient"
                         :algorithms="algorithms"
                         :recommendations="recommendations"></algorithm-selector>
   </div>
@@ -26,16 +26,13 @@ export default {
   components: {Loading, AlgorithmSelector, PageHeader},
   data() {
     return {
-      updated: false,
       recommendations: null
     }
   },
   created() {
-    this.updated = false
     this.recommendations = this.algorithms.map(alg => {
-      return this.recommended.includes(alg.id)
+      return this.recommended.includes(alg.id.toString())
     });
-    this.updated = true
   }
 }
 </script>

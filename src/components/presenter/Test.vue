@@ -31,7 +31,7 @@
         сохранятся в канале консультирования и отправятся врачу.</label>
     </div>
 
-    <answer-history :data="history"></answer-history>
+    <answer-history v-show="history.length" :data="history"></answer-history>
   </div>
 </template>
 
@@ -46,7 +46,6 @@ export default {
   components: {GoBackButtons, AnswerHistory, PageHeader},
   methods: {
     change_state: function (answer) {
-      console.log('ans', answer)
       let parts = answer.next_state.split('-')
       let next_id = parseInt(parts[1])
 
@@ -125,7 +124,6 @@ export default {
     Event.listen('previous-question', (data) => {
       let previous_answer = data.history.pop()
       this.state = 'q'
-      console.log('data', data)
       if (previous_answer.algorithm_id == this.current_algorithm.id) {
         this.current_question = this.current_algorithm.questions.find(q => q.id == previous_answer.question_id)
       } else {
