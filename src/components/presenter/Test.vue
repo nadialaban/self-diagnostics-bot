@@ -1,35 +1,13 @@
 <template>
   <div>
-      <div v-if="state == 'q'">
-        <page-header title="Вопрос" :img="current_question.icon">{{ current_question.description }}</page-header>
+    <page-header title="Вопрос" :img="current_question.icon">{{ current_question.description }}</page-header>
 
-        <div v-for="(answer, index) in current_question.answers">
-          <button class="btn btn-info btn-block"
-                  @click="change_state(answer)">{{ answer.answer }}
-          </button>
-        </div>
-      </div>
-
-      <div v-else>
-        <div class="text-center" style="margin-bottom: 20px;">
-          <img :src="this.img_url(result.color, result.icon)" width="60px">
-        </div>
-
-        <div class="alert" :class="get_alert_type()">
-          <h4 class="alert-heading text-center">{{ result.title }}</h4>
-          <p class="text-justify"> {{ result.description }}</p>
-        </div>
-      </div>
-
-    <go-back-buttons :history="history" location="test"></go-back-buttons>
-
-    <div v-if="state == 'r'">
-      <button class="btn-info btn btn-block"
-              @click="send_result()" :disabled="submitted">Завершить
+    <div v-for="(answer, index) in current_question.answers">
+      <button class="btn btn-info btn-block"
+              @click="change_state(answer)">{{ answer.answer }}
       </button>
-      <label class="text-center">После нажатия на кнопку "Завершить" данные
-        сохранятся в канале консультирования и отправятся врачу.</label>
     </div>
+    <go-back-buttons :history="history" loc="test" :algorithm="current_algorithm"></go-back-buttons>
 
     <answer-history v-show="history.length" :data="history"></answer-history>
   </div>
@@ -62,8 +40,12 @@ export default {
           this.current_question = this.current_algorithm.questions.find(q => q.id == next_id)
           break;
         case 'r':
-          this.result = this.current_algorithm.results.find(r => r.id == next_id)
-          this.state = 'r'
+          console.log('text')
+          Event.fire('show-result', {
+            algorithm: this.current_algorithm,
+            result: this.current_algorithm.results.find(r => r.id == next_id),
+            history: this.history
+          })
           break;
         case 'a':
           this.change_algorithm(next_id, 1)
@@ -79,41 +61,14 @@ export default {
           })
 
     },
-    get_alert_type: function () {
-      switch (this.result.color) {
-        case 'grey':
-          return 'alert-secondary';
-        case 'green':
-          return 'alert-success';
-        case 'yellow':
-          return 'alert-warning';
-        case 'red':
-          return 'alert-danger';
-      }
-    },
-    send_result: function () {
-      this.submitted = true
-      let data = {
-        'result': this.result,
-        'algorithm_title': this.current_algorithm.title,
-        'history': this.history
-      }
-      this.axios.post(this.url('/api/result'), data)
-          .then(r => Event.fire('algorithm-done')).catch(() => {
-        this.errors = ['Произошла ошибка сохранения']
-        this.submitted = false
-      });
-    }
-
   },
   data() {
     return {
       current_question: null,
       current_algorithm: null,
       history: [],
-      result: null,
       submitted: false,
-      state: 'q'
+      algorithm_state: 'q'
     }
   },
   created() {
@@ -123,7 +78,6 @@ export default {
 
     Event.listen('previous-question', (data) => {
       let previous_answer = data.history.pop()
-      this.state = 'q'
       if (previous_answer.algorithm_id == this.current_algorithm.id) {
         this.current_question = this.current_algorithm.questions.find(q => q.id == previous_answer.question_id)
       } else {

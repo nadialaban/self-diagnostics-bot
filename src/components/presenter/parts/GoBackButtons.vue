@@ -6,7 +6,7 @@
       </button>
       <button class="btn btn-block btn-outline-info"
               v-if="history.length"
-              @click="fire_event('previous-question')">Предыдущий вопрос
+              @click="fire_event(loc == 'res' ? 'back-to-test' : 'previous-question')">Предыдущий вопрос
       </button>
     </div>
   </div>
@@ -15,9 +15,10 @@
 <script>
 export default {
   name: "GoBackButtons",
-  props: ['history'],
+  props: ['history', 'algorithm', 'loc'],
   methods: {
     fire_event: function (event) {
+      let data = {}
       if (!this.history.length) {
         Event.fire('back-to-menu');
       } else if (event == 'back-to-menu') {
@@ -34,8 +35,9 @@ export default {
           }
         })
       } else {
-        let data = {
-          history: this.history
+        data = {
+          history: this.history,
+          algorithm: this.algorithm
         }
         Event.fire(event, data);
       }
