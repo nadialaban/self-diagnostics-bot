@@ -37,7 +37,8 @@ export default {
       } else {
         data = {
           history: this.history,
-          algorithm: this.algorithm
+          algorithm: this.algorithm,
+          handled: false
         }
         Event.fire(event, data);
       }

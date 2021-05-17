@@ -62,17 +62,6 @@ def verify_json(func):
     return wrapper
 
 
-# Проверка токенов.
-def check_data(key, contract=-1):
-    if key and key != API_KEY:
-        return "<strong>Некорректный ключ доступа.</strong> Свяжитесь с технической поддержкой."
-    if contract is None:
-        return "<strong>Запрашиваемый канал консультирования не найден.</strong> " + \
-               "Попробуйте отключить и заново подключить интеллектуального агента. " + \
-               "Если это не сработает, свяжитесь с технической поддержкой."
-    return 'ok'
-
-
 # Получение интерфейса
 def get_ui(contract, mode, state='loading', recommended_algorithms=''):
     agent_token = get_agent_token(contract.id)
@@ -103,8 +92,8 @@ def get_agent_token(contract_id):
         print('connection error', e)
 
 
-# 3. Работа с сообщениями
-# 3.1. Получение сообщения о результате для пациента
+# Работа с сообщениями
+# Получение сообщения о результате для пациента
 def get_patient_message(result, algorithm):
     text = 'Вами был пройден сценарий самодиагностики <strong>"{}"</strong>.\n\n'.format(algorithm)
     text += '<strong>Результат:</strong>\n{}\n\n.'.format(result['title'])
@@ -118,7 +107,7 @@ def get_patient_message(result, algorithm):
     return text
 
 
-# 3.2. Получение сообщения о результате для доктора
+# Получение сообщения о результате для доктора
 def get_doctor_message(result, algorithm, history):
     text = 'Вашим пациентом был пройден сценарий самодиагностики <strong>"{}"</strong>.\n\n'.format(algorithm)
     text += '<strong>Результат:</strong>\n{}\n\n.'.format(result['title'])

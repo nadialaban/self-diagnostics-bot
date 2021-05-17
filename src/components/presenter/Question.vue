@@ -19,7 +19,7 @@ import AnswerHistory from "./parts/AnswerHistory";
 import GoBackButtons from "./parts/GoBackButtons";
 
 export default {
-  name: "Test",
+  name: "Question",
   props: ['data'],
   components: {GoBackButtons, AnswerHistory, PageHeader},
   methods: {
@@ -66,9 +66,7 @@ export default {
     return {
       current_question: null,
       current_algorithm: null,
-      history: [],
-      submitted: false,
-      algorithm_state: 'q'
+      history: []
     }
   },
   created() {
@@ -77,11 +75,16 @@ export default {
     this.current_question = this.current_algorithm.questions.find(q => q.id == this.data.question_id)
 
     Event.listen('previous-question', (data) => {
-      let previous_answer = data.history.pop()
-      if (previous_answer.algorithm_id == this.current_algorithm.id) {
-        this.current_question = this.current_algorithm.questions.find(q => q.id == previous_answer.question_id)
-      } else {
-        this.change_algorithm(previous_answer.algorithm_id, previous_answer.question_id)
+      console.log(data.handled)
+      if (!data.handled) {
+        let previous_answer = this.history.pop()
+        console.log(this.history.length)
+        if (previous_answer.algorithm_id == this.current_algorithm.id) {
+          this.current_question = this.current_algorithm.questions.find(q => q.id == previous_answer.question_id)
+        } else {
+          this.change_algorithm(previous_answer.algorithm_id, previous_answer.question_id)
+        }
+        data.handled = true
       }
     });
   }

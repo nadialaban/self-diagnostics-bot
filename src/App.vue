@@ -18,10 +18,10 @@
 
       <div v-else-if="mode == 'patient'">
         <div class="container" style="margin-top: 15px;">
-          <main-page v-if="state == 'main'" :mode="mode"
+          <main-page v-if="state == 'main'"
                      :algorithms="algorithms"
                      :recommended="recommended_algorithms"></main-page>
-          <test v-if="state == 'test'" :data="info"></test>
+          <question v-if="state == 'test'" :data="info"></question>
           <result v-if="state == 'result'" :data="info"></result>
         </div>
       </div>
@@ -42,7 +42,7 @@ import Loading from "./components/Loading";
 import ActionDone from "./components/ActionDone";
 import LoadError from "./components/LoadError";
 import MainPage from "./components/presenter/MainPage";
-import Test from "./components/presenter/Test";
+import Question from "./components/presenter/Question";
 import SettingsPage from "./components/settings/SettingsPage";
 import Editor from "./components/settings/Editor";
 import Result from "./components/presenter/Result";
@@ -54,7 +54,7 @@ export default {
     Result,
     Editor,
     SettingsPage,
-    Test,
+    Question,
     MainPage,
     LoadError,
     ActionDone,
@@ -104,7 +104,6 @@ export default {
         'algorithm': data.algorithm,
         'question_id': previous_answer.question_id
       }
-      console.log(data)
       this.state = 'test'
     });
 

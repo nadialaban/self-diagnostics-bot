@@ -29,7 +29,7 @@ class AlgorithmManager(Manager):
 
     def is_depended_algorithm(self, algorithm_id):
         algorithms = self.db.session.query(Algorithm).filter(Algorithm.depended_algorithms.any(algorithm_id)).count()
-        return algorithms
+        return bool(algorithms)
 
     # Удаление алгоритма.
     def remove(self, algorithm_id):

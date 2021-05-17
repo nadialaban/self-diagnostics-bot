@@ -230,7 +230,7 @@ def open_main_menu(args, data, algorithms):
 # 7. Завершение сценария
 @app.route('/api/result', methods=['POST'])
 @verify_args
-def action_finish(args, data):
+def save_result(args, data):
     data = request.json
     contract_id = request.args.get('contract_id', '')
     contract = contract_manager.get(contract_id)

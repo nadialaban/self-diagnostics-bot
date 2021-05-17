@@ -20,11 +20,9 @@ class MessageChecker:
         enabled_algorithms = self.algorithm_manager.get_enabled_algorithms(contract)
         detected_algorithms = []
 
-        # print('1')
         msg = self.preprocess_text(message)
         msg = self.spellcheck(msg)
 
-        # print('2')
         for alg in enabled_algorithms:
             for word in alg['keywords']:
                 preprocessed_keyword = self.preprocess_text(word)

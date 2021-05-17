@@ -6,6 +6,7 @@
     <!-- Общая информация -->
 
     <div class="row">
+      <!-- Название -->
       <field title="Название" col="6" :error="errors.title">
         <input type="text" class="form-control"
                :class="!this.empty(errors.title) && (this.empty(algorithm.title) || algorithm_exists()) ? 'is-invalid' : ''"
@@ -13,6 +14,7 @@
                v-model="algorithm.title">
       </field>
 
+      <!-- Иконка -->
       <field title="Иконка" col="4" :error="errors.icon">
         <select class="custom-select"
                 :class="!this.empty(errors.icon) && this.empty(algorithm.icon) ? 'is-invalid' : ''"
@@ -28,9 +30,9 @@
       <div class="text-center col-2" style="margin-top: 25px;">
         <img v-if="algorithm.icon" :src="img_url('grey', algorithm.icon)" width="60px">
       </div>
-
     </div>
 
+    <!-- Описание для пациента -->
     <field title="Описание для пациента" :error="errors.patient_description">
     <textarea class="form-control text-justify" rows="5"
               :class="!this.empty(errors.patient_description) && this.empty(algorithm.patient_description) ? 'is-invalid' : ''"
@@ -38,6 +40,7 @@
               v-model="algorithm.patient_description"></textarea>
     </field>
 
+    <!-- Описание для врача -->
     <field title="Описание для врача" :error="errors.doctor_description">
     <textarea class="form-control text-justify" rows="5"
               :class="!this.empty(errors.doctor_description) && this.empty(algorithm.doctor_description) ? 'is-invalid' : ''"
@@ -45,16 +48,20 @@
               v-model="algorithm.doctor_description"></textarea>
     </field>
 
+    <!-- Вопросы -->
     <array-editor title="Вопросы" type="q"
                   :icons="this.icons"
                   :objects="algorithm.questions"
                   :results="algorithm.results" :algorithms="algorithms"
                   :errors="errors.questions" :algorithm_id="algorithm.id"></array-editor>
+
+    <!-- Исходы -->
     <array-editor title="Исходы" type="r"
                   :icons="this.icons"
                   :objects="algorithm.results"
                   :errors="errors.results"></array-editor>
 
+    <!-- Ключевые слова -->
     <field title="Ключевые слова и фразы">
     <textarea class="form-control text-justify" rows="5"
               :placeholder="'Вводите ключевые фразы с новой строчки.\n' +
