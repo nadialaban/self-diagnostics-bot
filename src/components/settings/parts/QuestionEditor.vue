@@ -100,6 +100,7 @@ export default {
   created() {
     this.question = this.data
     this.question_errors = this.errors
+    console.log(this.errors)
   }
 }
 </script>

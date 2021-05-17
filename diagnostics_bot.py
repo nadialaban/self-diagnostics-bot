@@ -110,7 +110,8 @@ def get_settings(args, data):
 def save_settings(args, data):
     contract = contract_manager.get(request.args.get('contract_id', ''))
     result = contract_manager.update(contract, request.json.get('recommendations'))
-    if result:
+
+    if result is not None:
         return jsonify({
             "saved_ids": result
         })
@@ -163,7 +164,7 @@ def get_algorithms(args, data):
         'enabled': contract.algorithms
     }
 
-    if algorithms:
+    if algorithms is not None:
         return jsonify(data)
     else:
         abort(422)
@@ -178,7 +179,6 @@ def get_enabled_algorithms(args, data, recommended):
     contract = contract_manager.get(contract_id)
 
     algorithms = algorithm_manager.get_enabled_algorithms(contract)
-
     recommendations = [int(alg) for alg in recommended.split('_')] if recommended != '' else []
     algorithms.sort(key=lambda alg: alg['id'] not in recommendations)
 
@@ -186,7 +186,7 @@ def get_enabled_algorithms(args, data, recommended):
         'algorithms': algorithms
     }
 
-    if algorithms:
+    if algorithms is not None:
         return jsonify(data)
     else:
         abort(422)

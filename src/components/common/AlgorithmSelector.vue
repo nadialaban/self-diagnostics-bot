@@ -1,5 +1,5 @@
 <template>
-  <div style="margin-bottom: 20px;">
+  <div style="margin-bottom: 20px;" v-if="algorithms.length">
     <card v-for="(algorithm, index) in algorithms"
           :key="algorithm.id"
           :recommended="recommendations[index]"
@@ -10,6 +10,9 @@
                v-model="values[index]" @change="changed(index)">
       </div>
     </card>
+  </div>
+  <div v-else style="margin-top: 100px;">
+    <label>Нет доступных опросников</label>
   </div>
 </template>
 
@@ -55,5 +58,9 @@ export default {
 </script>
 
 <style scoped>
-
+label {
+  color: #aaaaaa;
+  text-align: center;
+  display: block;
+}
 </style>

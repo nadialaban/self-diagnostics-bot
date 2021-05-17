@@ -291,6 +291,8 @@ export default {
   created() {
     this.algorithm = this.data
 
+    console.log(this.algorithm)
+
     this.errors = {
       title: '',
       icon: '',
@@ -302,6 +304,16 @@ export default {
 
     this.errors.questions.fill(this.get_question_errors())
     this.errors.results.fill(this.get_result_errors())
+    console.log(this.errors)
+    for (let i = 0; i < this.algorithm.questions.length; i++) {
+      for (let j = 2; j < this.algorithm.questions[i].answers.length; j++)
+        this.errors.questions[i].answers.push({
+          answer: '',
+          next_state: ''
+        })
+    }
+    console.log(this.errors)
+
 
     Event.listen('add-question', data => this.add_question(data))
     Event.listen('add-result', () => this.add_result())
