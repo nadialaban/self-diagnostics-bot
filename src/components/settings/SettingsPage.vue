@@ -44,7 +44,7 @@ export default {
     create_algorithm: function () {
       if (this.changed) {
         this.$confirm({
-          message: `Вы уверены? Все несохраненные данные будут утеряны!`,
+          message: `Вы уверены?\nВаш выбор не сохранится!`,
           button: {
             no: 'Нет',
             yes: 'Да'

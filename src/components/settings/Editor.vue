@@ -132,7 +132,7 @@ export default {
     },
     delete_algorithm: function () {
       this.$confirm({
-        message: `Вы уверены? Сценарий удалится для всех пациентов. Действие нельзя отменить!`,
+        message: `Вы уверены?\nСценарий удалится для всех пациентов. Действие нельзя отменить!`,
         button: {
           no: 'Нет',
           yes: 'Да'
@@ -267,7 +267,7 @@ export default {
     },
     go_back: function () {
       this.$confirm({
-        message: `Вы уверены? Все несохраненные данные будут утеряны!`,
+        message: `Вы уверены?\nВсе несохраненные данные будут утрачены!`,
         button: {
           no: 'Нет',
           yes: 'Да'
@@ -304,7 +304,7 @@ export default {
 
     this.errors.questions.fill(this.get_question_errors())
     this.errors.results.fill(this.get_result_errors())
-    console.log(this.errors)
+
     for (let i = 0; i < this.algorithm.questions.length; i++) {
       for (let j = 2; j < this.algorithm.questions[i].answers.length; j++)
         this.errors.questions[i].answers.push({
@@ -312,8 +312,6 @@ export default {
           next_state: ''
         })
     }
-    console.log(this.errors)
-
 
     Event.listen('add-question', data => this.add_question(data))
     Event.listen('add-result', () => this.add_result())

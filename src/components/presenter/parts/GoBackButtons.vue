@@ -23,7 +23,7 @@ export default {
         Event.fire('back-to-menu');
       } else if (event == 'back-to-menu') {
         this.$confirm({
-          message: `Вы уверены? Ваши ответы будут утеряны!`,
+          message: `Вы уверены? Ваши ответы будут утрачены!`,
           button: {
             no: 'Нет',
             yes: 'Да'

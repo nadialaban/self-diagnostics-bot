@@ -114,13 +114,25 @@ export default {
     });
 
     Event.listen('edit-algorithm', (algorithm_id) => {
-      this.state = 'loading'
-      let index = this.algorithms.map(alg => alg.id).indexOf(algorithm_id)
-      this.algorithms.splice(index, 1)
-      this.axios.get(this.url('/api/algorithm/' + algorithm_id))
-          .then(response => this.info = response.data)
-          .catch(this.process_load_error)
-          .finally(() => this.state = 'edit-algorithm');
+      this.$confirm({
+        message: `Вы уверены?\nВаш выбор не сохранится!`,
+        button: {
+          no: 'Нет',
+          yes: 'Да'
+        },
+        callback: confirm => {
+          if (confirm) {
+            this.state = 'loading'
+            let index = this.algorithms.map(alg => alg.id).indexOf(algorithm_id)
+            this.algorithms.splice(index, 1)
+            this.axios.get(this.url('/api/algorithm/' + algorithm_id))
+                .then(response => this.info = response.data)
+                .catch(this.process_load_error)
+                .finally(() => this.state = 'edit-algorithm');
+          }
+        }
+      })
+
     });
 
     Event.listen('delete-algorithm', () => this.state = 'settings');

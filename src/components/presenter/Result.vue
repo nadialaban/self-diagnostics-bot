@@ -80,5 +80,7 @@ export default {
 label {
   color: red;
   margin-top: 10px;
+  text-align: center;
+  display: block;
 }
 </style>
