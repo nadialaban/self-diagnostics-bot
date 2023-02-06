@@ -5,5 +5,4 @@ SQLAlchemy
 pymystem3
 pyaspeller
 flask_sqlalchemy
-psycopg2
 psycopg2-binary
